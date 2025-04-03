@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Main Dashboard - Calculator App</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background: #f8f8f8;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        h1 {
+            font-weight: 300;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+        .nav-links {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .nav-links a {
+            margin: 0 15px;
+            font-size: 18px;
+            color: #0070c9;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .history-table th, .history-table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        .history-table th {
+            background: #f4f4f4;
+            font-size: 16px;
+        }
+        .history-table td {
+            font-size: 15px;
+        }
+        .admin-tools {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+    <div class="logout-link" style="text-align:right;">
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <button type="submit" class="btn btn-link" style="font-size:16px; color:#0070c9; text-decoration:none;">Log Out</button>
+        </form>
+    </div>
+
+    <h1>Welcome, <span th:text="${username}"></span></h1>
+    <div class="nav-links">
+        <a th:href="@{/converter}">Currency Converter</a>
+        <a th:href="@{/ohm}">Ohm's Law Calculator</a>
+        <!-- If admin, show additional management link -->
+        <a th:if="${adminTools}" th:href="@{/admin/currency}">Manage Currency Rates</a>
+    </div>
+
+    <!-- Admin Tools Section -->
+    <div class="admin-tools" th:if="${adminTools}">
+        <a th:href="@{/admin/users}">Edit Users</a>
+    </div>
+
+    <h3>Your Operation History</h3>
+    <table class="history-table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Operation Type</th>
+            <th>Details</th>
+            <th>Date & Time</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="op : ${operations}">
+            <td th:text="${op.id}"></td>
+            <td th:text="${op.operationType}"></td>
+            <td th:text="${op.details}"></td>
+            <td th:text="${#temporals.format(op.operationTime, 'dd MMM yyyy HH:mm')}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Кампании - MarketingAgencyApp</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<!-- Навигация -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" th:href="@{/dashboard}">MarketingAgencyApp</a>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item" th:classappend="${requestURI == '/dashboard'} ? 'active'">
+                <a class="nav-link" th:href="@{/dashboard}">Главная</a>
+            </li>
+            <li class="nav-item" th:classappend="${requestURI.startsWith('/campaigns')} ? 'active'">
+                <a class="nav-link" th:href="@{/campaigns}">Кампании</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/channels}">Каналы</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/audiences}">Аудитории</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/reports}">Отчёты</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/about}">Об авторе</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<!-- Основной контент -->
+<div class="container mt-4">
+    <h1>Кампании</h1>
+    <!-- Кнопка создания кампании (отображается для ADMIN, условие можно задать в шаблоне) -->
+    <div th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+        <a th:href="@{/campaign/new}" class="btn btn-success mb-3">Добавить кампанию</a>
+    </div>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Название</th>
+            <th>Период</th>
+            <th>Бюджет</th>
+            <th>Статус</th>
+            <th>Действия</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="campaign : ${campaigns}">
+            <td th:text="${campaign.campaignId}">1</td>
+            <td th:text="${campaign.name}">Spring Sale</td>
+            <td th:text="${campaign.startDate} + ' - ' + ${campaign.endDate}">2025-03-01 - 2025-04-01</td>
+            <td th:text="${#numbers.formatDecimal(campaign.totalBudget,1,2)}">10000.00</td>
+            <td th:text="${campaign.status}">active</td>
+            <td>
+                <a th:href="@{'/campaign/edit/' + ${campaign.campaignId}}" class="btn btn-primary btn-sm"
+                   th:if="${#authorization.expression('hasRole(''ADMIN'')')}">Редактировать</a>
+                <a th:href="@{'/campaign/delete/' + ${campaign.campaignId}}" class="btn btn-danger btn-sm"
+                   th:if="${#authorization.expression('hasRole(''ADMIN'')')}">Удалить</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script th:src="@{/js/jquery-3.5.1.slim.min.js}"></script>
+<script th:src="@{/js/popper.min.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+</body>
+</html>

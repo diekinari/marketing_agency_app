@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Аудитории - MarketingAgencyApp</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<!-- Навигация -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" th:href="@{/dashboard}">MarketingAgencyApp</a>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link" th:href="@{/dashboard}">Главная</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/campaigns}">Кампании</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/channels}">Каналы</a></li>
+            <li class="nav-item active"><a class="nav-link" th:href="@{/audiences}">Аудитории</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/reports}">Отчёты</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/about}">Об авторе</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- Основной контент -->
+<div class="container mt-4">
+    <h1>Управление сегментами аудитории</h1>
+    <!-- Кнопка добавления нового сегмента (только для ADMIN) -->
+    <div th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+        <a th:href="@{/audience/new}" class="btn btn-success mb-3">Добавить сегмент</a>
+    </div>
+    <table class="table table-bordered">
+        <thead class="thead-dark">
+        <tr>
+            <th>ID</th>
+            <th>Название</th>
+            <th>Описание</th>
+            <th>Демографические данные</th>
+            <th>Действия</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="audience : ${audiences}">
+            <td th:text="${audience.audienceId}">1</td>
+            <td th:text="${audience.name}">Youth 18-25</td>
+            <td th:text="${audience.description}">Молодёжь, интересующаяся модой и технологиями</td>
+            <td th:text="${audience.demographics}">{"age_range": "18-25", "interests": ["fashion", "technology"]}</td>
+            <td>
+                <a th:href="@{'/audience/edit/' + ${audience.audienceId}}" class="btn btn-primary btn-sm"
+                   th:if="${#authorization.expression('hasRole(''ADMIN'')')}">Редактировать</a>
+                <a th:href="@{'/audience/delete/' + ${audience.audienceId}}" class="btn btn-danger btn-sm"
+                   th:if="${#authorization.expression('hasRole(''ADMIN'')')}">Удалить</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script th:src="@{/js/jquery-3.5.1.slim.min.js}"></script>
+<script th:src="@{/js/popper.min.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+</body>
+</html>

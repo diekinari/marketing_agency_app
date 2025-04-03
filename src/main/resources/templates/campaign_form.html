@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${campaign.campaignId == null} ? 'Создать кампанию' : 'Редактировать кампанию'">Кампания</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<!-- Навигация -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" th:href="@{/dashboard}">MarketingAgencyApp</a>
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav">
+      <li class="nav-item"><a class="nav-link" th:href="@{/dashboard}">Главная</a></li>
+      <li class="nav-item"><a class="nav-link" th:href="@{/campaigns}">Кампании</a></li>
+      <li class="nav-item"><a class="nav-link" th:href="@{/channels}">Каналы</a></li>
+      <li class="nav-item"><a class="nav-link" th:href="@{/audiences}">Аудитории</a></li>
+      <li class="nav-item"><a class="nav-link" th:href="@{/reports}">Отчёты</a></li>
+      <li class="nav-item"><a class="nav-link" th:href="@{/about}">Об авторе</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- Основной контент -->
+<div class="container mt-4">
+  <h1 th:text="${campaign.campaignId == null} ? 'Создать кампанию' : 'Редактировать кампанию'">Кампания</h1>
+  <form th:action="@{/campaign/save}" method="post" th:object="${campaign}">
+    <!-- Общая информация -->
+    <div class="form-group">
+      <label for="name">Название кампании</label>
+      <input type="text" id="name" th:field="*{name}" class="form-control" placeholder="Введите название" required>
+    </div>
+    <div class="form-group">
+      <label for="description">Описание</label>
+      <textarea id="description" th:field="*{description}" class="form-control" rows="3" placeholder="Введите описание"></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label for="startDate">Дата начала</label>
+        <input type="date" id="startDate" th:field="*{startDate}" class="form-control" required>
+      </div>
+      <div class="form-group col-md-6">
+        <label for="endDate">Дата окончания</label>
+        <input type="date" id="endDate" th:field="*{endDate}" class="form-control" required>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="totalBudget">Общий бюджет</label>
+      <input type="number" id="totalBudget" th:field="*{totalBudget}" class="form-control" step="0.01" placeholder="Введите бюджет" required>
+    </div>
+    <div class="form-group">
+      <label for="status">Статус кампании</label>
+      <select id="status" th:field="*{status}" class="form-control">
+        <option value="planned">Планируется</option>
+        <option value="active">Активна</option>
+        <option value="completed">Завершена</option>
+      </select>
+    </div>
+
+    <!-- Выбор каналов -->
+    <h3>Каналы продвижения</h3>
+    <div id="channels-section">
+      <div th:each="channel, iterStat : ${channels}">
+        <!-- Пример блока для выбора канала -->
+        <div class="card mb-3">
+          <div class="card-body">
+            <div class="form-group">
+              <label>Канал</label>
+              <select name="channelIds" class="form-control">
+                <option th:value="${channel.channelId}" th:text="${channel.name}">Канал</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Распределённый бюджет</label>
+              <input type="number" name="channelBudgets" class="form-control" step="0.01" placeholder="Введите сумму">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button type="button" class="btn btn-secondary mb-3" onclick="addChannel()">Добавить канал</button>
+
+    <!-- Выбор аудиторий -->
+    <h3>Сегменты аудитории</h3>
+    <div class="form-group">
+      <label>Выберите аудитории</label>
+      <select name="audienceIds" class="form-control" multiple>
+        <option th:each="audience : ${audiences}"
+                th:value="${audience.audienceId}"
+                th:text="${audience.name}">Аудитория</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Сохранить кампанию</button>
+  </form>
+</div>
+
+<script>
+  function addChannel() {
+    // Простой пример дублирования блока для выбора канала
+    var channelsSection = document.getElementById('channels-section');
+    var channelBlock = channelsSection.firstElementChild.cloneNode(true);
+    // Очистка значений
+    var selects = channelBlock.getElementsByTagName('select');
+    for (var i = 0; i < selects.length; i++) {
+      selects[i].selectedIndex = 0;
+    }
+    var inputs = channelBlock.getElementsByTagName('input');
+    for (var j = 0; j < inputs.length; j++) {
+      inputs[j].value = "";
+    }
+    channelsSection.appendChild(channelBlock);
+  }
+</script>
+
+<script th:src="@{/js/jquery-3.5.1.slim.min.js}"></script>
+<script th:src="@{/js/popper.min.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+</body>
+</html>
