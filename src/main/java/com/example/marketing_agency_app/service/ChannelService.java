@@ -16,8 +16,19 @@ public class ChannelService {
         this.channelRepository = channelRepository;
     }
 
-
     public List<Channel> findAll() {
         return channelRepository.findAll();
+    }
+
+    public Channel findById(Long id) {
+        return channelRepository.findById(id).orElse(null);
+    }
+
+    public Channel save(Channel channel) {
+        return channelRepository.save(channel);
+    }
+
+    public void delete(Long id) {
+        channelRepository.deleteById(id);
     }
 }

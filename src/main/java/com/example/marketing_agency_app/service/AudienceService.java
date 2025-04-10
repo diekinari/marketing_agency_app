@@ -20,4 +20,16 @@ public class AudienceService {
     public List<AudienceSegment> findAll() {
         return audienceSegmentRepository.findAll();
     }
+
+    public AudienceSegment findById(Long id) {
+        return audienceSegmentRepository.findById(id).orElse(null);
+    }
+
+    public AudienceSegment save(AudienceSegment audienceSegment) {
+        return audienceSegmentRepository.save(audienceSegment);
+    }
+
+    public void delete(Long id) {
+        audienceSegmentRepository.deleteById(id);
+    }
 }
