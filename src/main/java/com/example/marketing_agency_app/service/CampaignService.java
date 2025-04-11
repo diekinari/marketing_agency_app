@@ -6,6 +6,7 @@ import com.example.marketing_agency_app.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -89,5 +90,26 @@ public class CampaignService {
 
     public void delete(Long id) {
         campaignRepository.deleteById(id);
+    }
+
+    public List<CampaignMetrics> findFilteredCampaignMetrics(String name, String startDateStr, String endDateStr, String status) {
+        LocalDate startDate = null;
+        LocalDate endDate = null;
+        try {
+            if (startDateStr != null && !startDateStr.isBlank()) {
+                startDate = LocalDate.parse(startDateStr);
+            }
+            if (endDateStr != null && !endDateStr.isBlank()) {
+                endDate = LocalDate.parse(endDateStr);
+            }
+        } catch (Exception e) {
+            // Можно добавить логирование или обработку неверного формата даты
+            System.err.println("Ошибка преобразования даты: " + e.getMessage());
+        }
+        System.out.println("Name: " + name);
+        System.out.println("Start Date: " + startDate);
+        System.out.println("End Date: " + endDate);
+        System.out.println("Status: " + status);
+        return campaignRepository.findFilteredCampaignMetrics(name, startDate, endDate, status);
     }
 }

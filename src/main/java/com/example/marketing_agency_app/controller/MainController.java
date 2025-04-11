@@ -36,13 +36,31 @@ public class MainController {
     // ------------------ Кампании ------------------
 
     // Главная страница (Dashboard) с динамическими данными кампаний
+//    @GetMapping({"/", "/dashboard"})
+//    public String dashboard(Model model, HttpServletRequest request) {
+//        List<CampaignMetrics> campaignsMetrics = campaignService.findCampaignMetrics();
+//        model.addAttribute("campaigns", campaignsMetrics);
+//        model.addAttribute("requestURI", request.getRequestURI());
+//        return "dashboard";
+//    }
+
     @GetMapping({"/", "/dashboard"})
-    public String dashboard(Model model, HttpServletRequest request) {
-        List<CampaignMetrics> campaignsMetrics = campaignService.findCampaignMetrics();
+    public String dashboard(Model model,
+                            HttpServletRequest request,
+                            @RequestParam(value = "name", required = false) String name,
+                            @RequestParam(value = "startDate", required = false) String startDate,
+                            @RequestParam(value = "endDate", required = false) String endDate,
+                            @RequestParam(value = "status", required = false) String status) {
+
+        // Например, можно использовать метод в сервисном слое, который фильтрует кампании по заданным параметрам.
+        // Если такой метод отсутствует, можно реализовать фильтрацию в сервисе (или SQL-запрос).
+        List<CampaignMetrics> campaignsMetrics = campaignService.findFilteredCampaignMetrics(name, startDate, endDate, status);
+
         model.addAttribute("campaigns", campaignsMetrics);
         model.addAttribute("requestURI", request.getRequestURI());
         return "dashboard";
     }
+
 
     // Страница со списком кампаний
     @GetMapping("/campaigns")

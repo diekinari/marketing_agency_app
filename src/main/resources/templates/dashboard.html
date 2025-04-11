@@ -8,12 +8,11 @@
 
 </head>
 <body>
-<!-- Навигационное меню -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" th:href="@{/dashboard}">MarketingAgencyApp</a>
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
-            <li class="nav-item" th:classappend="${requestURI == '/dashboard'} ? 'active'">
+            <li class="nav-item" th:classappend="${requestURI == '/dashboard' || requestURI == '/'} ? 'active'">
                 <a class="nav-link" th:href="@{/dashboard}">Главная</a>
             </li>
             <li class="nav-item" th:classappend="${requestURI.startsWith('/campaigns')} ? 'active'">
@@ -32,6 +31,10 @@
                 <a class="nav-link" th:href="@{/about}">Об авторе</a>
             </li>
         </ul>
+        <!-- Кнопка Logout -->
+        <form th:action="@{/logout}" method="post" class="form-inline my-2 my-lg-0 ml-auto">
+            <button class="btn btn-outline-danger my-2 my-sm-0" type="submit">Logout</button>
+        </form>
     </div>
 </nav>
 
@@ -40,16 +43,30 @@
     <h1>Обзор рекламных кампаний</h1>
 
     <!-- Форма фильтрации -->
-    <form class="form-inline mb-3">
-        <input type="text" class="form-control mr-2" placeholder="Название кампании">
-        <input type="date" class="form-control mr-2">
-        <select class="form-control mr-2">
-            <option value="">Статус</option>
-            <option value="active">Активна</option>
-            <option value="planned">Планируется</option>
-            <option value="completed">Завершена</option>
-        </select>
+    <!-- Форма фильтрации с указанием action и name для каждого поля -->
+    <form class="form-inline mb-3" th:action="@{/dashboard}" method="get">
+        <label>
+            <input type="text" name="name" class="form-control mr-2" placeholder="Название кампании"
+                   th:value="${param.name}">
+        </label>
+        <label>
+            <input type="date" name="startDate" class="form-control mr-2" placeholder="Дата начала"
+                   th:value="${param.startDate}">
+        </label>
+        <label>
+            <input type="date" name="endDate" class="form-control mr-2" placeholder="Дата окончания"
+                   th:value="${param.endDate}">
+        </label>
+        <label>
+            <select name="status" class="form-control mr-2">
+                <option value="" th:selected="${param.status == null or param.status == ''}">Статус</option>
+                <option value="active" th:selected="${param.status == 'active'}">Активна</option>
+                <option value="planned" th:selected="${param.status == 'planned'}">Планируется</option>
+                <option value="completed" th:selected="${param.status == 'completed'}">Завершена</option>
+            </select>
+        </label>
         <button type="submit" class="btn btn-primary">Применить фильтр</button>
+        <a th:href="@{/dashboard}" class="btn btn-secondary ml-2">Сбросить фильтр</a>
     </form>
 
     <!-- Таблица с динамически загружаемыми данными кампаний -->

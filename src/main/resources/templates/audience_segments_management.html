@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <title>Аудитории - MarketingAgencyApp</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Дополнительное оформление для форматированного JSON */
+        pre.json-pretty {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            overflow-x: auto;
+        }
+    </style>
 </head>
 <body>
 <!-- Навигация -->
@@ -18,6 +28,10 @@
             <li class="nav-item"><a class="nav-link" th:href="@{/reports}">Отчёты</a></li>
             <li class="nav-item"><a class="nav-link" th:href="@{/about}">Об авторе</a></li>
         </ul>
+        <!-- Кнопка Logout -->
+        <form th:action="@{/logout}" method="post" class="form-inline my-2 my-lg-0 ml-auto">
+            <button class="btn btn-outline-danger my-2 my-sm-0" type="submit">Logout</button>
+        </form>
     </div>
 </nav>
 
@@ -43,7 +57,10 @@
             <td th:text="${audience.audienceId}">1</td>
             <td th:text="${audience.name}">Youth 18-25</td>
             <td th:text="${audience.description}">Молодёжь, интересующаяся модой и технологиями</td>
-            <td th:text="${audience.demographics}">{"age_range": "18-25", "interests": ["fashion", "technology"]}</td>
+            <!-- Здесь вместо простого вывода JSON, зададим класс для последующей обработки -->
+            <td class="demographics-json" th:text="${audience.demographics}">{"age_range": "18-25", "interests":
+                ["fashion", "technology"]}
+            </td>
             <td>
                 <a th:href="@{'/audience/edit/' + ${audience.audienceId}}" class="btn btn-primary btn-sm"
                    th:if="${#authorization.expression('hasRole(''ADMIN'')')}">Редактировать</a>
@@ -55,8 +72,28 @@
     </table>
 </div>
 
-<script th:src="@{/js/jquery-3.5.1.slim.min.js}"></script>
-<script th:src="@{/js/popper.min.js}"></script>
-<script th:src="@{/js/bootstrap.min.js}"></script>
+<!-- Скрипт для форматирования JSON в ячейках с классом 'demographics-json' -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    // После загрузки документа, пробегаем по всем ячейкам с классом 'demographics-json'
+    $(document).ready(function () {
+        $(".demographics-json").each(function () {
+            var raw = $(this).text();
+            try {
+                // Парсим содержимое как JSON
+                var obj = JSON.parse(raw);
+                // Преобразуем в красиво отформатированную строку с отступами
+                var pretty = JSON.stringify(obj, null, 2);
+                // Оборачиваем результат в тег <pre> для сохранения форматирования
+                $(this).html("<pre class='json-pretty'>" + pretty + "</pre>");
+            } catch (e) {
+                // Если содержимое не является допустимым JSON, оставляем как есть
+                console.error("Не удалось распарсить JSON:", e);
+            }
+        });
+    });
+</script>
 </body>
 </html>
