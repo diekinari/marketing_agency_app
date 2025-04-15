@@ -6,6 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -46,11 +47,12 @@ public class Campaign {
 
     // Связь с каналами (одна кампания может иметь множество записей в CampaignChannel)
     @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<CampaignChannel> campaignChannels;
+    private Set<CampaignChannel> campaignChannels = new HashSet<>();
 
     // Связь с аудиториями (одна кампания может иметь множество записей в CampaignAudience)
     @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<CampaignAudience> campaignAudiences;
+    private Set<CampaignAudience> campaignAudiences = new HashSet<>();
+
 
     @Transient
     private List<Long> audienceIds;

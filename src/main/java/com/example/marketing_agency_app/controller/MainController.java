@@ -79,6 +79,7 @@ public class MainController {
         model.addAttribute("campaign", new Campaign());
         model.addAttribute("channels", channelService.findAll());
         model.addAttribute("audiences", audienceService.findAll());
+        model.addAttribute("availableChannels", channelService.findAll());
         return "campaign_form";
     }
 
@@ -88,10 +89,21 @@ public class MainController {
     public String saveCampaign(@ModelAttribute("campaign") Campaign campaign,
                                @RequestParam(name = "channelIds", required = false) List<Long> channelIds,
                                @RequestParam(name = "channelBudgets", required = false) List<Double> channelBudgets,
+                               @RequestParam(name = "newChannelIds", required = false) List<Long> newChannelIds,
+                               @RequestParam(name = "newChannelBudgets", required = false) List<Double> newChannelBudgets,
+                               @RequestParam(name = "deletedChannelIds", required = false) String deletedChannelIds,
                                @RequestParam(name = "audienceIds", required = false) List<Long> audienceIds) {
-        campaignService.saveCampaignWithRelations(campaign, channelIds, channelBudgets, audienceIds);
+
+        campaignService.saveCampaignWithRelations(campaign,
+                channelIds,
+                channelBudgets,
+                newChannelIds,
+                newChannelBudgets,
+                deletedChannelIds,
+                audienceIds);
         return "redirect:/campaigns";
     }
+
 
     // Форма редактирования кампании (ADMIN)
     @GetMapping("/campaign/edit/{id}")
