@@ -36,7 +36,7 @@ public class CampaignService {
 
 
     public List<Campaign> findAll() {
-        return campaignRepository.findAll();
+        return campaignRepository.findAllWithAssociations();
     }
 
 
@@ -54,20 +54,22 @@ public class CampaignService {
             for (int i = 0; i < channelIds.size(); i++) {
                 Long channelId = channelIds.get(i);
                 Double budget = channelBudgets.get(i);
-                // Создаем связь Campaign_Channel
+                // Если бюджет равен null, установить 0
+                BigDecimal allocatedBudget = (budget == null) ? BigDecimal.ZERO : BigDecimal.valueOf(budget);
+
+                // Создаем связь CampaignChannel
                 CampaignChannel cc = new CampaignChannel();
                 cc.setCampaign(savedCampaign);
                 // Находим канал по ID
                 Channel channel = channelRepository.findById(channelId).orElse(null);
                 if (channel != null) {
                     cc.setChannel(channel);
-                    cc.setAllocatedBudget(BigDecimal.valueOf(budget));
+                    cc.setAllocatedBudget(allocatedBudget);
                     // Инициализируем метрики (показы, клики, конверсии, потраченная сумма)
                     cc.setImpressions(0);
                     cc.setClicks(0);
                     cc.setConversions(0);
-                    cc.setSpentAmount(BigDecimal.valueOf(0.0));
-                    // Дополнительно можно установить значения для cost_per_click, cost_per_conversion, CTR и т.п.
+                    cc.setSpentAmount(BigDecimal.ZERO);
                     campaignChannelRepository.save(cc);
                 }
             }

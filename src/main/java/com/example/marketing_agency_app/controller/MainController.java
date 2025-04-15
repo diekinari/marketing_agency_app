@@ -15,6 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class MainController {
@@ -97,9 +98,15 @@ public class MainController {
     @PreAuthorize("hasRole('ADMIN')")
     public String editCampaign(@PathVariable("id") Long id, Model model) {
         Campaign campaign = campaignService.findById(id);
+        campaign.setAudienceIds(
+                campaign.getCampaignAudiences().stream()
+                        .map(ca -> ca.getAudience().getAudienceId())
+                        .collect(Collectors.toList())
+        );
         model.addAttribute("campaign", campaign);
         model.addAttribute("channels", channelService.findAll());
         model.addAttribute("audiences", audienceService.findAll());
+        model.addAttribute("availableChannels", channelService.findAvailableChannels(campaign.getCampaignChannels()));
         return "campaign_form";
     }
 

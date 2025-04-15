@@ -1,10 +1,12 @@
 package com.example.marketing_agency_app.model;
 
 import jakarta.persistence.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -23,9 +25,11 @@ public class Campaign {
     private String description;
 
     @Column(name = "start_date")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
 
     @Column(name = "end_date")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
 
     @Column(name = "total_budget", precision = 12, scale = 2)
@@ -48,8 +52,8 @@ public class Campaign {
     @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CampaignAudience> campaignAudiences;
 
-    // Getters и setters
-    // ...
+    @Transient
+    private List<Long> audienceIds;
 
     public Long getCampaignId() {
         return campaignId;
@@ -137,6 +141,14 @@ public class Campaign {
 
     public void setCampaignAudiences(Set<CampaignAudience> campaignAudiences) {
         this.campaignAudiences = campaignAudiences;
+    }
+
+    public List<Long> getAudienceIds() {
+        return audienceIds;
+    }
+
+    public void setAudienceIds(List<Long> audienceIds) {
+        this.audienceIds = audienceIds;
     }
 }
 

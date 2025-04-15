@@ -63,6 +63,11 @@
     <input type="password" name="password" class="form-control" placeholder="Password" required>
     <button type="submit" class="btn btn-primary btn-block">Sign In</button>
   </form>
+  <form th:action="@{/login}" method="post">
+    <input type="hidden" name="username" value="admin">
+    <input type="hidden" name="password" value="admin">
+    <button type="submit" class="btn btn-primary btn-block">Debug Login</button>
+  </form>
   <div class="register-link">
     <p>Not registered yet? <a th:href="@{/register}">Create an account</a></p>
   </div>

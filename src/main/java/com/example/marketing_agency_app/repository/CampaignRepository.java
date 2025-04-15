@@ -34,4 +34,10 @@ public interface CampaignRepository extends JpaRepository<Campaign, Long> {
             "WHERE LOWER(c.name) LIKE CONCAT('%', LOWER(:name), '%')")
     List<CampaignMetrics> findByNameTest(@Param("name") String name);
 
+    // Метод для полного получения кампаний со связанными данными:
+    @Query("SELECT DISTINCT c FROM Campaign c " +
+            "LEFT JOIN FETCH c.campaignChannels cc " +
+            "LEFT JOIN FETCH c.campaignAudiences ca")
+    List<Campaign> findAllWithAssociations();
+
 }
