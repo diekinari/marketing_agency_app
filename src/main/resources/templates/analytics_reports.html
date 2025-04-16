@@ -1,61 +1,190 @@
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org"-->
+<!--      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"-->
+<!--      lang="ru">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>Отчёты - MarketingAgencyApp</title>-->
+<!--    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">-->
+<!--    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>-->
+<!--</head>-->
+<!--<body>-->
+<!--&lt;!&ndash; Навигация &ndash;&gt;-->
+<!--<nav class="navbar navbar-expand-lg navbar-dark bg-dark">-->
+<!--    <a class="navbar-brand" th:href="@{/dashboard}">MarketingAgencyApp</a>-->
+<!--    <div class="collapse navbar-collapse" id="navbarNav">-->
+<!--        <ul class="navbar-nav">-->
+<!--            <li class="nav-item"><a class="nav-link" th:href="@{/dashboard}">Главная</a></li>-->
+<!--            <li class="nav-item"><a class="nav-link" th:href="@{/campaigns}">Кампании</a></li>-->
+<!--            <li class="nav-item"><a class="nav-link" th:href="@{/channels}">Каналы</a></li>-->
+<!--            <li class="nav-item"><a class="nav-link" th:href="@{/audiences}">Аудитории</a></li>-->
+<!--            <li class="nav-item active"><a class="nav-link" th:href="@{/reports}">Отчёты</a></li>-->
+<!--            <li class="nav-item"><a class="nav-link" th:href="@{/about}">Об авторе</a></li>-->
+<!--        </ul>-->
+<!--        <form th:action="@{/logout}" method="post" class="form-inline my-2 my-lg-0 ml-auto">-->
+<!--            <button class="btn btn-outline-danger my-2 my-sm-0" type="submit">Logout</button>-->
+<!--        </form>-->
+<!--    </div>-->
+<!--</nav>-->
+
+<!--<div class="container mt-4">-->
+<!--    <h1>Аналитика и отчёты</h1>-->
+
+<!--    &lt;!&ndash; Форма фильтрации по периоду &ndash;&gt;-->
+<!--    <form class="form-inline mb-3" th:action="@{/reports}" method="get">-->
+<!--        <label class="mr-2">Период:</label>-->
+<!--        <input type="date" class="form-control mr-2" name="startDate" th:value="${startDate}">-->
+<!--        <input type="date" class="form-control mr-2" name="endDate" th:value="${endDate}">-->
+<!--        <button type="submit" class="btn btn-primary">Применить</button>-->
+<!--    </form>-->
+
+<!--    &lt;!&ndash; Базовый график для всех пользователей &ndash;&gt;-->
+<!--    <div class="card mb-4">-->
+<!--        <div class="card-header">Динамика показов</div>-->
+<!--        <div class="card-body">-->
+<!--            <canvas id="impressionsChart" width="400" height="200"></canvas>-->
+<!--        </div>-->
+<!--    </div>-->
+
+<!--    &lt;!&ndash; Расширенные данные для администраторов &ndash;&gt;-->
+<!--    <div sec:authorize="hasRole('ADMIN')">-->
+<!--        <h2>Дополнительная аналитика (для администраторов)</h2>-->
+<!--        <div class="card mb-4">-->
+<!--            <div class="card-header">Динамика кликов</div>-->
+<!--            <div class="card-body">-->
+<!--                <canvas id="clicksChart" width="400" height="200"></canvas>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        &lt;!&ndash; Добавьте дополнительные блоки по необходимости &ndash;&gt;-->
+<!--&lt;!&ndash;        <button class="btn btn-success" onclick="exportData()">Экспорт данных в CSV</button>&ndash;&gt;-->
+<!--    </div>-->
+<!--</div>-->
+
+<!--<script th:inline="javascript">-->
+<!--    /*<![CDATA[*/-->
+<!--    var ctx = document.getElementById('impressionsChart').getContext('2d');-->
+<!--    var labels = /*[[${chartLabels}]]*/ ['Март','Апрель','Май','Июнь','Июль'];-->
+<!--    var dataPoints = /*[[${chartData}]]*/ [50000,60000,55000,65000,70000];-->
+<!--    new Chart(ctx, {-->
+<!--        type: 'line',-->
+<!--        data: {-->
+<!--            labels: labels,-->
+<!--            datasets: [{-->
+<!--                label: 'Показы',-->
+<!--                data: dataPoints,-->
+<!--                backgroundColor: 'rgba(54, 162, 235, 0.2)',-->
+<!--                borderColor: 'rgba(54, 162, 235, 1)',-->
+<!--                borderWidth: 2,-->
+<!--                fill: true-->
+<!--            }]-->
+<!--        },-->
+<!--        options: {-->
+<!--            responsive: true,-->
+<!--            scales: {-->
+<!--                y: {-->
+<!--                    beginAtZero: true,-->
+<!--                    title: {-->
+<!--                        display: true,-->
+<!--                        text: 'Показы'-->
+<!--                    }-->
+<!--                },-->
+<!--                x: {-->
+<!--                    title: {-->
+<!--                        display: true,-->
+<!--                        text: 'Дата'-->
+<!--                    }-->
+<!--                }-->
+<!--            }-->
+<!--        }-->
+<!--    });-->
+
+<!--    var showExtendedChart = /*[[${extendedChartLabels != null and extendedChartData != null}]]*/ false;-->
+
+<!--    if (showExtendedChart) {-->
+<!--        var ctxClicks = document.getElementById('clicksChart').getContext('2d');-->
+<!--        var clicksLabels = /*[[${extendedChartLabels}]]*/ ['Март','Апрель','Май','Июнь','Июль'];-->
+<!--        var clicksData = /*[[${extendedChartData}]]*/ [1000,1500,1200,1700,1600];-->
+
+<!--        new Chart(ctxClicks, {-->
+<!--            type: 'line',-->
+<!--            data: {-->
+<!--                labels: clicksLabels,-->
+<!--                datasets: [{-->
+<!--                    label: 'Клики',-->
+<!--                    data: clicksData,-->
+<!--                    backgroundColor: 'rgba(255, 99, 132, 0.2)',-->
+<!--                    borderColor: 'rgba(255, 99, 132, 1)',-->
+<!--                    borderWidth: 2,-->
+<!--                    fill: true-->
+<!--                }]-->
+<!--            },-->
+<!--            options: {-->
+<!--                responsive: true,-->
+<!--                scales: {-->
+<!--                    y: {-->
+<!--                        beginAtZero: true,-->
+<!--                        title: {-->
+<!--                            display: true,-->
+<!--                            text: 'Клики'-->
+<!--                        }-->
+<!--                    },-->
+<!--                    x: {-->
+<!--                        title: {-->
+<!--                            display: true,-->
+<!--                            text: 'Дата'-->
+<!--                        }-->
+<!--                    }-->
+<!--                }-->
+<!--            }-->
+<!--        });-->
+<!--    }-->
+<!--    /*]]>*/-->
+<!--</script>-->
+
+
+<!--<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>-->
+<!--<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>-->
+<!--<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>-->
+<!--</body>-->
+<!--</html>-->
+
+
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="ru">
 <head>
     <meta charset="UTF-8">
     <title>Отчёты - MarketingAgencyApp</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- Подключение Chart.js для построения графиков -->
-    <script th:src="@{/js/chart.min.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-<!-- Навигация -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" th:href="@{/dashboard}">MarketingAgencyApp</a>
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-            <li class="nav-item"><a class="nav-link" th:href="@{/dashboard}">Главная</a></li>
-            <li class="nav-item"><a class="nav-link" th:href="@{/campaigns}">Кампании</a></li>
-            <li class="nav-item"><a class="nav-link" th:href="@{/channels}">Каналы</a></li>
-            <li class="nav-item"><a class="nav-link" th:href="@{/audiences}">Аудитории</a></li>
-            <li class="nav-item active"><a class="nav-link" th:href="@{/reports}">Отчёты</a></li>
-            <li class="nav-item"><a class="nav-link" th:href="@{/about}">Об авторе</a></li>
-        </ul>
-        <!-- Кнопка Logout -->
-        <form th:action="@{/logout}" method="post" class="form-inline my-2 my-lg-0 ml-auto">
-            <button class="btn btn-outline-danger my-2 my-sm-0" type="submit">Logout</button>
-        </form>
-    </div>
-</nav>
-
-<!-- Основной контент -->
+<!-- Навигация, форма фильтрации и выбор периода остаются прежними -->
 <div class="container mt-4">
     <h1>Аналитика и отчёты</h1>
-    <!-- Форма фильтрации по периоду -->
     <form class="form-inline mb-3" th:action="@{/reports}" method="get">
         <label class="mr-2">Период:</label>
-        <input type="date" class="form-control mr-2" name="startDate">
-        <input type="date" class="form-control mr-2" name="endDate">
+        <input type="date" class="form-control mr-2" name="startDate" th:value="${startDate}">
+        <input type="date" class="form-control mr-2" name="endDate" th:value="${endDate}">
         <button type="submit" class="btn btn-primary">Применить</button>
     </form>
 
-    <!-- Карточка с графиком динамики показов -->
+    <!-- График динамики показов -->
     <div class="card mb-4">
         <div class="card-header">Динамика показов</div>
         <div class="card-body">
             <canvas id="impressionsChart" width="400" height="200"></canvas>
         </div>
     </div>
-
-    <!-- Здесь можно добавить дополнительные графики или отчёты -->
 </div>
 
 <script th:inline="javascript">
     /*<![CDATA[*/
     var ctx = document.getElementById('impressionsChart').getContext('2d');
-    // Пример данных для графика – в реальности данные можно передавать через модель
-    var labels = /*[[${chartLabels}]]*/ ['Март', 'Апрель', 'Май', 'Июнь', 'Июль'];
-    var dataPoints = /*[[${chartData}]]*/ [50000, 60000, 55000, 65000, 70000];
-    var impressionsChart = new Chart(ctx, {
+    var labels = /*[[${chartLabels}]]*/ ['Нет данных'];
+    var dataPoints = /*[[${impressionsData}]]*/ [0];
+    new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
@@ -69,18 +198,29 @@
             }]
         },
         options: {
+            responsive: true,
             scales: {
-                yAxes: [{
-                    ticks: { beginAtZero: true }
-                }]
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Показы'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Дата'
+                    }
+                }
             }
         }
     });
     /*]]>*/
 </script>
 
-<script th:src="@{/js/jquery-3.5.1.slim.min.js}"></script>
-<script th:src="@{/js/popper.min.js}"></script>
-<script th:src="@{/js/bootstrap.min.js}"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

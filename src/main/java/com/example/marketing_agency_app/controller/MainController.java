@@ -7,14 +7,20 @@ import com.example.marketing_agency_app.model.Channel;
 import com.example.marketing_agency_app.service.AudienceService;
 import com.example.marketing_agency_app.service.CampaignService;
 import com.example.marketing_agency_app.service.ChannelService;
+import com.example.marketing_agency_app.service.ReportsService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Controller
@@ -27,10 +33,13 @@ public class MainController {
 
     private final AudienceService audienceService;
 
-    public MainController(AudienceService audienceService, CampaignService campaignService, ChannelService channelService) {
+    private final ReportsService reportsService;
+
+    public MainController(AudienceService audienceService, CampaignService campaignService, ChannelService channelService, ReportsService reportsService) {
         this.audienceService = audienceService;
         this.campaignService = campaignService;
         this.channelService = channelService;
+        this.reportsService = reportsService;
     }
 
 
@@ -227,8 +236,63 @@ public class MainController {
     // ------------------ Отчёты и информация ------------------
 
     // Страница аналитики и отчетов
+//    @GetMapping("/reports")
+//    public String reports(Model model,
+//                          @RequestParam(value = "startDate", required = false) String startDateStr,
+//                          @RequestParam(value = "endDate", required = false) String endDateStr,
+//                          Authentication authentication) {
+//
+//        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//        LocalDate startDate = (startDateStr != null && !startDateStr.isEmpty())
+//                ? LocalDate.parse(startDateStr, dtf)
+//                : LocalDate.now().minusMonths(1);
+//        LocalDate endDate = (endDateStr != null && !endDateStr.isEmpty())
+//                ? LocalDate.parse(endDateStr, dtf)
+//                : LocalDate.now();
+//
+//        // Получаем базовые данные для графика динамики показов
+//        Map<String, Object> basicChartData = reportsService.getImpressionsChartData(startDate, endDate);
+//        model.addAttribute("chartLabels", basicChartData.get("labels"));
+//        model.addAttribute("chartData", basicChartData.get("data"));
+//
+//        // Добавляем сами значения дат для сохранения состояния формы
+//        model.addAttribute("startDate", startDateStr);
+//        model.addAttribute("endDate", endDateStr);
+//
+//        // Если пользователь имеет роль ADMIN, добавляем расширенные данные.
+//        if (authentication != null && authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+//            Map<String, Object> extendedData = reportsService.getExtendedChartData(startDate, endDate);
+//            model.addAttribute("extendedChartLabels", extendedData.get("labels"));
+//            model.addAttribute("extendedChartData", extendedData.get("data"));
+//            // Также можно добавить таблицу детальных показателей, статистику по каналам и т.д.
+//        }
+//
+//        return "analytics_reports";  // шаблон с аналитикой
+//    }
+
     @GetMapping("/reports")
-    public String reports(Model model) {
+    public String reports(Model model,
+                          @RequestParam(value = "startDate", required = false) String startDateStr,
+                          @RequestParam(value = "endDate", required = false) String endDateStr) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate startDate = (startDateStr != null && !startDateStr.isEmpty())
+                ? LocalDate.parse(startDateStr, dtf)
+                : LocalDate.now().minusMonths(1);
+        LocalDate endDate = (endDateStr != null && !endDateStr.isEmpty())
+                ? LocalDate.parse(endDateStr, dtf)
+                : LocalDate.now();
+
+        Map<String, Object> dailyMetrics = reportsService.getDailyMetrics(startDate, endDate);
+
+        model.addAttribute("chartLabels", dailyMetrics.get("labels"));
+        model.addAttribute("impressionsData", dailyMetrics.get("impressions"));
+        model.addAttribute("clicksData", dailyMetrics.get("clicks"));
+        model.addAttribute("conversionsData", dailyMetrics.get("conversions"));
+        model.addAttribute("spentData", dailyMetrics.get("spent"));
+
+        model.addAttribute("startDate", startDateStr);
+        model.addAttribute("endDate", endDateStr);
+
         return "analytics_reports";
     }
 
