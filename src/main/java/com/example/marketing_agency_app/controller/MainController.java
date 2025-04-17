@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Controller
@@ -235,64 +236,47 @@ public class MainController {
 
     // ------------------ Отчёты и информация ------------------
 
-    // Страница аналитики и отчетов
-//    @GetMapping("/reports")
-//    public String reports(Model model,
-//                          @RequestParam(value = "startDate", required = false) String startDateStr,
-//                          @RequestParam(value = "endDate", required = false) String endDateStr,
-//                          Authentication authentication) {
-//
-//        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-//        LocalDate startDate = (startDateStr != null && !startDateStr.isEmpty())
-//                ? LocalDate.parse(startDateStr, dtf)
-//                : LocalDate.now().minusMonths(1);
-//        LocalDate endDate = (endDateStr != null && !endDateStr.isEmpty())
-//                ? LocalDate.parse(endDateStr, dtf)
-//                : LocalDate.now();
-//
-//        // Получаем базовые данные для графика динамики показов
-//        Map<String, Object> basicChartData = reportsService.getImpressionsChartData(startDate, endDate);
-//        model.addAttribute("chartLabels", basicChartData.get("labels"));
-//        model.addAttribute("chartData", basicChartData.get("data"));
-//
-//        // Добавляем сами значения дат для сохранения состояния формы
-//        model.addAttribute("startDate", startDateStr);
-//        model.addAttribute("endDate", endDateStr);
-//
-//        // Если пользователь имеет роль ADMIN, добавляем расширенные данные.
-//        if (authentication != null && authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-//            Map<String, Object> extendedData = reportsService.getExtendedChartData(startDate, endDate);
-//            model.addAttribute("extendedChartLabels", extendedData.get("labels"));
-//            model.addAttribute("extendedChartData", extendedData.get("data"));
-//            // Также можно добавить таблицу детальных показателей, статистику по каналам и т.д.
-//        }
-//
-//        return "analytics_reports";  // шаблон с аналитикой
-//    }
 
     @GetMapping("/reports")
-    public String reports(Model model,
-                          @RequestParam(value = "startDate", required = false) String startDateStr,
-                          @RequestParam(value = "endDate", required = false) String endDateStr) {
+    public String reports(
+            Model model,
+            @RequestParam(value="campaignId", required=false) Long campaignId,
+            @RequestParam(value="startDate",  required=false) String startStr,
+            @RequestParam(value="endDate",    required=false) String endStr
+    ) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate startDate = (startDateStr != null && !startDateStr.isEmpty())
-                ? LocalDate.parse(startDateStr, dtf)
-                : LocalDate.now().minusMonths(1);
-        LocalDate endDate = (endDateStr != null && !endDateStr.isEmpty())
-                ? LocalDate.parse(endDateStr, dtf)
-                : LocalDate.now();
 
-        Map<String, Object> dailyMetrics = reportsService.getDailyMetrics(startDate, endDate);
+        LocalDate start;
+        LocalDate end;
 
-        model.addAttribute("chartLabels", dailyMetrics.get("labels"));
-        model.addAttribute("impressionsData", dailyMetrics.get("impressions"));
-        model.addAttribute("clicksData", dailyMetrics.get("clicks"));
-        model.addAttribute("conversionsData", dailyMetrics.get("conversions"));
-        model.addAttribute("spentData", dailyMetrics.get("spent"));
+        if (campaignId != null && (startStr == null || startStr.isEmpty()) && (endStr == null || endStr.isEmpty())) {
+            Campaign c = campaignService.findById(campaignId);
+            start = c.getStartDate();
+            end   = c.getEndDate();
+        } else {
+            start = (startStr != null && !startStr.isEmpty())
+                    ? LocalDate.parse(startStr, dtf)
+                    : LocalDate.now().minusMonths(1);
+            end   = (endStr != null && !endStr.isEmpty())
+                    ? LocalDate.parse(endStr, dtf)
+                    : LocalDate.now();
+        }
 
-        model.addAttribute("startDate", startDateStr);
-        model.addAttribute("endDate", endDateStr);
+        // Список кампаний для dropdown
+        List<Campaign> campaigns = campaignService.findAll();
+        model.addAttribute("campaigns", campaigns);
+        model.addAttribute("selectedCampaignId", campaignId);
 
+        // Данные для графиков
+        Map<String,Object> data = reportsService.getDailyMetrics(campaignId, start, end);
+        model.addAttribute("chartLabels",      data.get("labels"));
+        model.addAttribute("impressionsData",  data.get("impressions"));
+        model.addAttribute("clicksData",       data.get("clicks"));
+        model.addAttribute("conversionsData",  data.get("conversions"));
+        model.addAttribute("spentData",        data.get("spent"));
+
+        model.addAttribute("startDate", startStr);
+        model.addAttribute("endDate",   endStr);
         return "analytics_reports";
     }
 
