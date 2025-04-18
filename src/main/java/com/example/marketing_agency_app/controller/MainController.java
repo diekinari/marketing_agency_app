@@ -17,6 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -93,24 +94,31 @@ public class MainController {
         return "campaign_form";
     }
 
-    // Сохранение кампании (ADMIN)
     @PostMapping("/campaign/save")
     @PreAuthorize("hasRole('ADMIN')")
-    public String saveCampaign(@ModelAttribute("campaign") Campaign campaign,
-                               @RequestParam(name = "channelIds", required = false) List<Long> channelIds,
-                               @RequestParam(name = "channelBudgets", required = false) List<Double> channelBudgets,
-                               @RequestParam(name = "newChannelIds", required = false) List<Long> newChannelIds,
-                               @RequestParam(name = "newChannelBudgets", required = false) List<Double> newChannelBudgets,
-                               @RequestParam(name = "deletedChannelIds", required = false) String deletedChannelIds,
-                               @RequestParam(name = "audienceIds", required = false) List<Long> audienceIds) {
-
-        campaignService.saveCampaignWithRelations(campaign,
-                channelIds,
-                channelBudgets,
-                newChannelIds,
-                newChannelBudgets,
-                deletedChannelIds,
-                audienceIds);
+    public String saveCampaign(
+            @ModelAttribute("campaign") Campaign campaign,
+            @RequestParam(name = "channelIds",             required = false) List<Long>      channelIds,
+            @RequestParam(name = "channelBudgets",         required = false) List<Double>    channelBudgets,
+            @RequestParam(name = "channelImpressions",     required = false) List<Integer>   channelImpressions,
+            @RequestParam(name = "channelClicks",          required = false) List<Integer>   channelClicks,
+            @RequestParam(name = "channelConversions",     required = false) List<Integer>   channelConversions,
+            @RequestParam(name = "channelSpentAmounts",    required = false) List<BigDecimal> channelSpentAmounts,
+            @RequestParam(name = "newChannelIds",          required = false) List<Long>      newChannelIds,
+            @RequestParam(name = "newChannelBudgets",      required = false) List<Double>    newChannelBudgets,
+            @RequestParam(name = "newChannelImpressions",  required = false) List<Integer>   newChannelImpressions,
+            @RequestParam(name = "newChannelClicks",       required = false) List<Integer>   newChannelClicks,
+            @RequestParam(name = "newChannelConversions",  required = false) List<Integer>   newChannelConversions,
+            @RequestParam(name = "newChannelSpentAmounts", required = false) List<BigDecimal> newChannelSpentAmounts,
+            @RequestParam(name = "deletedChannelIds",      required = false) String          deletedChannelIds,
+            @RequestParam(name = "audienceIds",            required = false) List<Long>      audienceIds
+    ) {
+        campaignService.saveCampaignWithRelations(
+                campaign,
+                channelIds, channelBudgets, channelImpressions, channelClicks, channelConversions, channelSpentAmounts,
+                newChannelIds, newChannelBudgets, newChannelImpressions, newChannelClicks, newChannelConversions, newChannelSpentAmounts,
+                deletedChannelIds, audienceIds
+        );
         return "redirect:/campaigns";
     }
 
