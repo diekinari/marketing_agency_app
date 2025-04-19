@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -70,14 +71,29 @@ public class MainController {
                             @RequestParam(value = "name", required = false) String name,
                             @RequestParam(value = "startDate", required = false) String startDate,
                             @RequestParam(value = "endDate", required = false) String endDate,
-                            @RequestParam(value = "status", required = false) String status) {
+                            @RequestParam(value = "status", required = false) String status,
+                            @RequestParam(value = "sortField", defaultValue = "startDate") String sortField,
+                            @RequestParam(value = "sortDir",   defaultValue = "asc")       String sortDir) {
 
-        // Например, можно использовать метод в сервисном слое, который фильтрует кампании по заданным параметрам.
-        // Если такой метод отсутствует, можно реализовать фильтрацию в сервисе (или SQL-запрос).
-        List<CampaignMetrics> campaignsMetrics = campaignService.findFilteredCampaignMetrics(name, startDate, endDate, status);
+        // 1) Формируем объект Sort
+        Sort sort = Sort.by(sortField);
+        sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
 
-        model.addAttribute("campaigns", campaignsMetrics);
-        model.addAttribute("requestURI", request.getRequestURI());
+        // 2) Получаем отфильтрованный и отсортированный список метрик
+        List<CampaignMetrics> campaigns =
+                campaignService.findFilteredCampaignMetrics(name, startDate, endDate, status, sort);
+
+        // 3) Пробрасываем в модель все параметры для формы и ссылок
+        model.addAttribute("campaigns",       campaigns);
+        model.addAttribute("requestURI",      request.getRequestURI());
+        model.addAttribute("name",            name);
+        model.addAttribute("startDate",       startDate);
+        model.addAttribute("endDate",         endDate);
+        model.addAttribute("status",          status);
+        model.addAttribute("sortField",       sortField);
+        model.addAttribute("sortDir",         sortDir);
+        model.addAttribute("reverseSortDir",  "asc".equalsIgnoreCase(sortDir) ? "desc" : "asc");
+
         return "dashboard";
     }
 

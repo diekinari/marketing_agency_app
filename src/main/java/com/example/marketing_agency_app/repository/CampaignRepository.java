@@ -2,6 +2,8 @@ package com.example.marketing_agency_app.repository;
 
 import com.example.marketing_agency_app.model.Campaign;
 import com.example.marketing_agency_app.model.CampaignMetrics;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,7 +29,8 @@ public interface CampaignRepository extends JpaRepository<Campaign, Long> {
     List<CampaignMetrics> findFilteredCampaignMetrics(@Param("name") String name,
                                                       @Param("startDate") LocalDate startDate,
                                                       @Param("endDate") LocalDate endDate,
-                                                      @Param("status") String status);
+                                                      @Param("status") String status,
+                                                      Sort sort);
 
 
     @Query("SELECT c FROM CampaignMetrics c " +
@@ -39,5 +42,6 @@ public interface CampaignRepository extends JpaRepository<Campaign, Long> {
             "LEFT JOIN FETCH c.campaignChannels cc " +
             "LEFT JOIN FETCH c.campaignAudiences ca")
     List<Campaign> findAllWithAssociations();
+
 
 }

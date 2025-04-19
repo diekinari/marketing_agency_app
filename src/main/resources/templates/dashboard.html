@@ -73,28 +73,162 @@
     <table class="table table-bordered">
         <thead class="thead-dark">
         <tr>
-            <th>Название</th>
-            <th>Период</th>
-            <th>Статус</th>
-            <th>Бюджет</th>
-            <th>Показы</th>
-            <th>Клики</th>
-            <th>Конверсии</th>
-            <th>Потрачено</th>
-            <th>ROI (%)</th>
+            <!-- Название -->
+            <th>
+                <a th:href="@{/dashboard(
+              name=${name},
+              startDate=${startDate},
+              endDate=${endDate},
+              status=${status},
+              sortField='name',
+              sortDir=${sortField=='name'?reverseSortDir:'asc'}
+            )}">
+                    Название
+                    <span th:if="${sortField=='name'}"
+                          th:text="${sortDir=='asc' ? '▲' : '▼'}"></span>
+                </a>
+            </th>
+
+            <!-- Период (объединим startDate и endDate по одному заголовку) -->
+            <th>
+                <a th:href="@{/dashboard(
+              name=${name},
+              startDate=${startDate},
+              endDate=${endDate},
+              status=${status},
+              sortField='startDate',
+              sortDir=${sortField=='startDate'?reverseSortDir:'asc'}
+            )}">
+                    Период
+                    <span th:if="${sortField=='startDate'}"
+                          th:text="${sortDir=='asc' ? '▲' : '▼'}"></span>
+                </a>
+            </th>
+
+            <!-- Статус -->
+            <th>
+                <a th:href="@{/dashboard(
+              name=${name},
+              startDate=${startDate},
+              endDate=${endDate},
+              status=${status},
+              sortField='status',
+              sortDir=${sortField=='status'?reverseSortDir:'asc'}
+            )}">
+                    Статус
+                    <span th:if="${sortField=='status'}"
+                          th:text="${sortDir=='asc' ? '▲' : '▼'}"></span>
+                </a>
+            </th>
+
+            <!-- Общий бюджет -->
+            <th>
+                <a th:href="@{/dashboard(
+              name=${name},
+              startDate=${startDate},
+              endDate=${endDate},
+              status=${status},
+              sortField='totalBudget',
+              sortDir=${sortField=='totalBudget'?reverseSortDir:'asc'}
+            )}">
+                    Бюджет
+                    <span th:if="${sortField=='totalBudget'}"
+                          th:text="${sortDir=='asc' ? '▲' : '▼'}"></span>
+                </a>
+            </th>
+
+            <!-- Показы -->
+            <th>
+                <a th:href="@{/dashboard(
+              name=${name},
+              startDate=${startDate},
+              endDate=${endDate},
+              status=${status},
+              sortField='totalImpressions',
+              sortDir=${sortField=='totalImpressions'?reverseSortDir:'asc'}
+            )}">
+                    Показы
+                    <span th:if="${sortField=='totalImpressions'}"
+                          th:text="${sortDir=='asc' ? '▲' : '▼'}"></span>
+                </a>
+            </th>
+
+            <!-- Клики -->
+            <th>
+                <a th:href="@{/dashboard(
+              name=${name},
+              startDate=${startDate},
+              endDate=${endDate},
+              status=${status},
+              sortField='totalClicks',
+              sortDir=${sortField=='totalClicks'?reverseSortDir:'asc'}
+            )}">
+                    Клики
+                    <span th:if="${sortField=='totalClicks'}"
+                          th:text="${sortDir=='asc' ? '▲' : '▼'}"></span>
+                </a>
+            </th>
+
+            <!-- Конверсии -->
+            <th>
+                <a th:href="@{/dashboard(
+              name=${name},
+              startDate=${startDate},
+              endDate=${endDate},
+              status=${status},
+              sortField='totalConversions',
+              sortDir=${sortField=='totalConversions'?reverseSortDir:'asc'}
+            )}">
+                    Конверсии
+                    <span th:if="${sortField=='totalConversions'}"
+                          th:text="${sortDir=='asc' ? '▲' : '▼'}"></span>
+                </a>
+            </th>
+
+            <!-- Потрачено -->
+            <th>
+                <a th:href="@{/dashboard(
+              name=${name},
+              startDate=${startDate},
+              endDate=${endDate},
+              status=${status},
+              sortField='totalSpent',
+              sortDir=${sortField=='totalSpent'?reverseSortDir:'asc'}
+            )}">
+                    Потрачено
+                    <span th:if="${sortField=='totalSpent'}"
+                          th:text="${sortDir=='asc' ? '▲' : '▼'}"></span>
+                </a>
+            </th>
+
+            <!-- ROI -->
+            <th>
+                <a th:href="@{/dashboard(
+              name=${name},
+              startDate=${startDate},
+              endDate=${endDate},
+              status=${status},
+              sortField='roiPercentage',
+              sortDir=${sortField=='roiPercentage'?reverseSortDir:'asc'}
+            )}">
+                    ROI (%)
+                    <span th:if="${sortField=='roiPercentage'}"
+                          th:text="${sortDir=='asc' ? '▲' : '▼'}"></span>
+                </a>
+            </th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="campaign : ${campaigns}">
-            <td th:text="${campaign.name}">Название кампании</td>
-            <td th:text="${campaign.startDate} + ' - ' + ${campaign.endDate}">Период</td>
-            <td th:text="${campaign.status}">Статус</td>
-            <td th:text="${#numbers.formatDecimal(campaign.totalBudget,1,2)}">Бюджет</td>
-            <td th:text="${campaign.totalImpressions}">Показы</td>
-            <td th:text="${campaign.totalClicks}">Клики</td>
-            <td th:text="${campaign.totalConversions}">Конверсии</td>
-            <td th:text="${#numbers.formatDecimal(campaign.totalSpent,1,2)}">Потрачено</td>
-            <td th:text="${campaign.roiPercentage}">ROI (%)</td>
+        <tr th:each="c : ${campaigns}">
+            <td th:text="${c.name}">Название</td>
+            <td th:text="${c.startDate} + ' - ' + ${c.endDate}">Период</td>
+            <td th:text="${c.status}">Статус</td>
+            <td th:text="${#numbers.formatDecimal(c.totalBudget,1,2)}">Бюджет</td>
+            <td th:text="${c.totalImpressions}">Показы</td>
+            <td th:text="${c.totalClicks}">Клики</td>
+            <td th:text="${c.totalConversions}">Конверсии</td>
+            <td th:text="${#numbers.formatDecimal(c.totalSpent,1,2)}">Потрачено</td>
+            <td th:text="${c.roiPercentage}">ROI</td>
         </tr>
         </tbody>
     </table>

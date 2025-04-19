@@ -3,6 +3,8 @@ package com.example.marketing_agency_app.service;
 
 import com.example.marketing_agency_app.model.*;
 import com.example.marketing_agency_app.repository.*;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -193,7 +195,7 @@ public class CampaignService {
         campaignRepository.deleteById(id);
     }
 
-    public List<CampaignMetrics> findFilteredCampaignMetrics(String name, String startDateStr, String endDateStr, String status) {
+    public List<CampaignMetrics> findFilteredCampaignMetrics(String name, String startDateStr, String endDateStr, String status, Sort sort) {
         LocalDate startDate = null;
         LocalDate endDate = null;
         try {
@@ -207,10 +209,8 @@ public class CampaignService {
             // Можно добавить логирование или обработку неверного формата даты
             System.err.println("Ошибка преобразования даты: " + e.getMessage());
         }
-        System.out.println("Name: " + name);
-        System.out.println("Start Date: " + startDate);
-        System.out.println("End Date: " + endDate);
-        System.out.println("Status: " + status);
-        return campaignRepository.findFilteredCampaignMetrics(name, startDate, endDate, status);
+
+        return campaignRepository.findFilteredCampaignMetrics(name, startDate, endDate, status, sort);
     }
+
 }
