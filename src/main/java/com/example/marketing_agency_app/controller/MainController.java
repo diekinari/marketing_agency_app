@@ -8,6 +8,9 @@ import com.example.marketing_agency_app.service.AudienceService;
 import com.example.marketing_agency_app.service.CampaignService;
 import com.example.marketing_agency_app.service.ChannelService;
 import com.example.marketing_agency_app.service.ReportsService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -37,11 +41,15 @@ public class MainController {
 
     private final ReportsService reportsService;
 
-    public MainController(AudienceService audienceService, CampaignService campaignService, ChannelService channelService, ReportsService reportsService) {
+    private final ObjectMapper objectMapper;
+
+
+    public MainController(AudienceService audienceService, CampaignService campaignService, ChannelService channelService, ReportsService reportsService, ObjectMapper objectMapper) {
         this.audienceService = audienceService;
         this.campaignService = campaignService;
         this.channelService = channelService;
         this.reportsService = reportsService;
+        this.objectMapper = objectMapper;
     }
 
 
@@ -214,10 +222,35 @@ public class MainController {
         return "audience_form";  // Создайте шаблон audience_form.html
     }
 
-    // Сохранение сегмента аудитории (ADMIN)
+
+    @InitBinder("audience")
+    protected void initBinder(WebDataBinder binder) {
+        binder.setDisallowedFields("demographics");
+    }
+
     @PostMapping("/audience/save")
     @PreAuthorize("hasRole('ADMIN')")
-    public String saveAudience(@ModelAttribute("audience") AudienceSegment audience) {
+    public String saveAudience(
+            @ModelAttribute("audience") AudienceSegment audience,
+            @RequestParam("demographics") String demographicsJson,
+            Model model
+    ) {
+        // 1) Парсим строку в JsonNode (или в пустой объект, если пусто)
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode demoNode;
+        if (demographicsJson != null && !demographicsJson.trim().isEmpty()) {
+            try {
+                demoNode = mapper.readTree(demographicsJson);
+            } catch (JsonProcessingException e) {
+                model.addAttribute("jsonError", "Некорректный JSON: " + e.getOriginalMessage());
+                return "audience_form";
+            }
+        } else {
+            demoNode = mapper.createObjectNode();
+        }
+        audience.setDemographics(demoNode);
+
+        // 2) Сохраняем
         audienceService.save(audience);
         return "redirect:/audiences";
     }

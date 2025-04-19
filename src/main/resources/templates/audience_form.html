@@ -31,18 +31,23 @@
     <form th:action="@{/audience/save}" method="post" th:object="${audience}">
         <div class="form-group">
             <label for="name">Название сегмента</label>
-            <input type="text" id="name" th:field="*{name}" class="form-control" placeholder="Введите название сегмента" required>
+            <input type="text" id="name" th:field="*{name}" class="form-control" placeholder="Введите название" required>
+            <div th:if="${#fields.hasErrors('name')}" class="text-danger" th:errors="*{name}"></div>
         </div>
         <div class="form-group">
             <label for="description">Описание сегмента</label>
             <textarea id="description" th:field="*{description}" class="form-control" rows="3" placeholder="Введите описание сегмента"></textarea>
+            <div th:if="${#fields.hasErrors('description')}" class="text-danger" th:errors="*{description}"></div>
         </div>
         <div class="form-group">
             <label for="demographics">Демографические данные</label>
-            <textarea id="demographics" th:field="*{demographics}" class="form-control" rows="3" placeholder="Введите демографическую информацию (например, в формате JSON)"></textarea>
+            <textarea id="demographics" th:field="*{demographics}" class="form-control" rows="3" placeholder="Введите демографическую информацию (в формате JSON)"></textarea>
+            <div th:if="${#fields.hasErrors('demographics')}" class="text-danger" th:errors="*{demographics}"></div>
+            <div th:if="${jsonError}" class="text-danger mt-1" th:text="${jsonError}"></div>
         </div>
         <button type="submit" class="btn btn-primary">Сохранить сегмент</button>
         <a th:href="@{/audiences}" class="btn btn-secondary">Отмена</a>
+        <input type="hidden" name="id" th:field="*{audienceId}" />
     </form>
 </div>
 

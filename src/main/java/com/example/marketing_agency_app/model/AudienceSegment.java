@@ -1,25 +1,28 @@
 package com.example.marketing_agency_app.model;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.vladmihalcea.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Type;
+
 
 @Entity
 @Table(name = "audiencesegment")
+// Регистрируем поддержку jsonb через Hibernate Types 60
+//@Convert(attributeName = "audienceSegment", converter = JsonBinaryType.class)
 public class AudienceSegment {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "audience_id")
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long audienceId;
 
-    @Column(nullable = false, length = 255)
     private String name;
 
-    @Column(columnDefinition = "TEXT")
     private String description;
 
-    // Можно хранить демографические данные в виде строки (JSON) или использовать специальный тип
-    @Column(columnDefinition = "TEXT")
-    private String demographics;
+    // Теперь поле — JsonNode, Hibernate Types сам сериализует/десериализует в jsonb
+    @Type(JsonType.class)
+    @Column(columnDefinition = "jsonb")
+    private JsonNode demographics;
 
     // Если необходимо, можно добавить обратную связь с CampaignAudience
     // ...
@@ -51,11 +54,11 @@ public class AudienceSegment {
         this.description = description;
     }
 
-    public String getDemographics() {
+    public JsonNode getDemographics() {
         return demographics;
     }
 
-    public void setDemographics(String demographics) {
+    public void setDemographics(JsonNode demographics) {
         this.demographics = demographics;
     }
 }
