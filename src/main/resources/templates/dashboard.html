@@ -88,10 +88,12 @@
     <!-- Фильтр -->
     <div class="filter-card">
         <form th:action="@{/dashboard}" method="get" class="form-row align-items-center">
+            <!-- Название -->
             <div class="form-group mb-2 mr-2">
                 <input type="text" name="name" class="form-control" placeholder="Название кампании"
                        th:value="${param.name}">
             </div>
+            <!-- Даты -->
             <div class="form-group mb-2 mr-2">
                 <input type="date" name="startDate" class="form-control"
                        th:value="${param.startDate}">
@@ -100,14 +102,44 @@
                 <input type="date" name="endDate" class="form-control"
                        th:value="${param.endDate}">
             </div>
+            <!-- Статус -->
             <div class="form-group mb-2 mr-2">
                 <select name="status" class="form-control">
-                    <option value="" th:selected="${param.status == null or param.status == ''}">Статус</option>
+                    <option value="" th:selected="${param.status == null}">Статус</option>
                     <option value="active" th:selected="${param.status == 'active'}">Активна</option>
                     <option value="planned" th:selected="${param.status == 'planned'}">Планируется</option>
                     <option value="completed" th:selected="${param.status == 'completed'}">Завершена</option>
                 </select>
             </div>
+            <!-- Канал -->
+            <div class="form-group mb-2 mr-2">
+                <select name="channelId" class="form-control">
+                    <option value="" th:selected="${param.channelId == null}">Канал</option>
+                    <option th:each="ch: ${channels}"
+                            th:value="${ch.getChannelId()}"
+                            th:text="${ch.name}"
+                            th:selected="${param.channelId == ch.getChannelId()}">Канал</option>
+                </select>
+            </div>
+            <!-- Бюджет -->
+            <div class="form-group mb-2 mr-2">
+                <input type="number" name="minBudget" class="form-control" placeholder="Мин. бюджет"
+                       th:value="${param.minBudget}">
+            </div>
+            <div class="form-group mb-2 mr-2">
+                <input type="number" name="maxBudget" class="form-control" placeholder="Макс. бюджет"
+                       th:value="${param.maxBudget}">
+            </div>
+            <!-- ROI -->
+            <div class="form-group mb-2 mr-2">
+                <input type="number" step="0.1" name="minRoi" class="form-control" placeholder="Мин. ROI %"
+                       th:value="${param.minRoi}">
+            </div>
+            <div class="form-group mb-2 mr-2">
+                <input type="number" step="0.1" name="maxRoi" class="form-control" placeholder="Макс. ROI %"
+                       th:value="${param.maxRoi}">
+            </div>
+            <!-- Кнопки -->
             <div class="form-group mb-2 mr-2">
                 <button type="submit" class="btn btn-primary">Применить</button>
             </div>

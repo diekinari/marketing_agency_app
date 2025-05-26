@@ -251,13 +251,29 @@ public class CampaignService {
      * @param startDateStr  строка с датой начала (yyyy-MM-dd)
      * @param endDateStr    строка с датой окончания (yyyy-MM-dd)
      * @param status        статус кампании
+     * @param channelId     идентификатор канала
+     * @param minBudget     минимальный бюджет
+     * @param maxBudget     максимальный бюджет
+     * @param minRoi        минимальный ROI
+     * @param maxRoi        максимальный ROI
      * @param sort          объект Sort для сортировки
      * @return              список CampaignMetrics, удовлетворяющих условиям
      */
     public List<CampaignMetrics> findFilteredCampaignMetrics(
-            String name, String startDateStr, String endDateStr, String status, Sort sort) {
+            String name,
+            String startDateStr,
+            String endDateStr,
+            String status,
+            Long channelId,
+            BigDecimal minBudget,
+            BigDecimal maxBudget,
+            BigDecimal minRoi,
+            BigDecimal maxRoi,
+            Sort sort
+    ) {
         LocalDate startDate = null;
         LocalDate endDate = null;
+
         try {
             if (startDateStr != null && !startDateStr.isBlank()) {
                 startDate = LocalDate.parse(startDateStr);
@@ -266,9 +282,14 @@ public class CampaignService {
                 endDate = LocalDate.parse(endDateStr);
             }
         } catch (Exception e) {
-            // Можно добавить логирование некорректного формата даты
-            System.err.println("Ошибка преобразования даты: " + e.getMessage());
+            // здесь можно добавить логирование
+            System.err.println("Ошибка парсинга даты: " + e.getMessage());
         }
-        return campaignRepository.findFilteredCampaignMetrics(name, startDate, endDate, status, sort);
+
+        return campaignRepository.findFilteredCampaignMetrics(
+                name, startDate, endDate, status,
+                channelId, minBudget, maxBudget, minRoi, maxRoi,
+                sort
+        );
     }
 }

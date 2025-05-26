@@ -71,9 +71,14 @@ public class MainController {
      * @param model      модель MVC
      * @param request    HTTP-запрос (для получения URI)
      * @param name       фильтр по названию кампании (частичное совпадение)
-     * @param startDate  фильтр по дате начала
-     * @param endDate    фильтр по дате окончания
+     * @param startDate  фильтр по дате начала (ISO-формат)
+     * @param endDate    фильтр по дате окончания (ISO-формат)
      * @param status     фильтр по статусу кампании
+     * @param channelId  фильтр по каналу
+     * @param minBudget  минимальный бюджет (в условных единицах)
+     * @param maxBudget  максимальный бюджет (в условных единицах)
+     * @param minRoi     минимальный ROI (%)
+     * @param maxRoi     максимальный ROI (%)
      * @param sortField  поле для сортировки
      * @param sortDir    направление сортировки ("asc" или "desc")
      * @return           имя Thymeleaf-шаблона "dashboard"
@@ -81,31 +86,56 @@ public class MainController {
     @GetMapping({"/", "/dashboard"})
     public String dashboard(Model model,
                             HttpServletRequest request,
-                            @RequestParam(value = "name", required = false) String name,
-                            @RequestParam(value = "startDate", required = false) String startDate,
-                            @RequestParam(value = "endDate", required = false) String endDate,
-                            @RequestParam(value = "status", required = false) String status,
-                            @RequestParam(value = "sortField", defaultValue = "startDate") String sortField,
-                            @RequestParam(value = "sortDir", defaultValue = "asc") String sortDir) {
+                            @RequestParam(value = "name",       required = false) String name,
+                            @RequestParam(value = "startDate",  required = false) String startDate,
+                            @RequestParam(value = "endDate",    required = false) String endDate,
+                            @RequestParam(value = "status",     required = false) String status,
+                            @RequestParam(value = "channelId",  required = false) Long channelId,
+                            @RequestParam(value = "minBudget",  required = false) BigDecimal minBudget,
+                            @RequestParam(value = "maxBudget",  required = false) BigDecimal maxBudget,
+                            @RequestParam(value = "minRoi",     required = false) BigDecimal minRoi,
+                            @RequestParam(value = "maxRoi",     required = false) BigDecimal maxRoi,
+                            @RequestParam(value = "sortField",  defaultValue = "startDate") String sortField,
+                            @RequestParam(value = "sortDir",    defaultValue = "asc")       String sortDir) {
 
+        // Настройка сортировки
         Sort sort = Sort.by(sortField);
         sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
 
-        List<CampaignMetrics> campaigns =
-                campaignService.findFilteredCampaignMetrics(name, startDate, endDate, status, sort);
+        // Получаем отфильтрованный список метрик кампаний
+        List<CampaignMetrics> campaigns = campaignService.findFilteredCampaignMetrics(
+                name,
+                startDate,
+                endDate,
+                status,
+                channelId,
+                minBudget,
+                maxBudget,
+                minRoi,
+                maxRoi,
+                sort
+        );
 
-        model.addAttribute("campaigns",      campaigns);
-        model.addAttribute("requestURI",     request.getRequestURI());
-        model.addAttribute("name",           name);
-        model.addAttribute("startDate",      startDate);
-        model.addAttribute("endDate",        endDate);
-        model.addAttribute("status",         status);
-        model.addAttribute("sortField",      sortField);
-        model.addAttribute("sortDir",        sortDir);
-        model.addAttribute("reverseSortDir", "asc".equalsIgnoreCase(sortDir) ? "desc" : "asc");
+        // Подготовка данных для Thymeleaf
+        model.addAttribute("campaigns",       campaigns);
+        model.addAttribute("channels",        channelService.findAll());     // для выпадающего списка каналов
+        model.addAttribute("requestURI",      request.getRequestURI());
+        model.addAttribute("name",            name);
+        model.addAttribute("startDate",       startDate);
+        model.addAttribute("endDate",         endDate);
+        model.addAttribute("status",          status);
+        model.addAttribute("channelId",       channelId);
+        model.addAttribute("minBudget",       minBudget);
+        model.addAttribute("maxBudget",       maxBudget);
+        model.addAttribute("minRoi",          minRoi);
+        model.addAttribute("maxRoi",          maxRoi);
+        model.addAttribute("sortField",       sortField);
+        model.addAttribute("sortDir",         sortDir);
+        model.addAttribute("reverseSortDir",  "asc".equalsIgnoreCase(sortDir) ? "desc" : "asc");
 
         return "dashboard";
     }
+
 
     /**
      * Отображает список всех кампаний.
