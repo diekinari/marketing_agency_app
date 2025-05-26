@@ -2,10 +2,41 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Аудитории - MarketingAgencyApp</title>
+    <title>Аудитории – MarketingAgencyApp</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-        /* Дополнительное оформление для форматированного JSON */
+        body {
+            background: #f8f9fa;
+            font-family: "Helvetica Neue", Arial, sans-serif;
+        }
+        .page-header {
+            padding: 2rem 1rem;
+            background: #fff;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+        .table-container {
+            background: #fff;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: .25rem;
+        }
+        .table thead {
+            background: #0070c9;
+            color: #fff;
+        }
+        .table tbody tr:hover {
+            background: #f1f9ff;
+        }
+        .btn-sm {
+            padding: .25rem .5rem;
+            font-size: .8rem;
+        }
+        .actions .btn {
+            margin-right: .25rem;
+        }
+        /* Для форматированного JSON */
         pre.json-pretty {
             background-color: #f8f9fa;
             padding: 10px;
@@ -16,85 +47,108 @@
     </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
+
 <!-- Навигация -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" th:href="@{/dashboard}">MarketingAgencyApp</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarNav" aria-controls="navbarNav"
+            aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
     <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-            <li class="nav-item"><a class="nav-link" th:href="@{/dashboard}">Главная</a></li>
-            <li class="nav-item"><a class="nav-link" th:href="@{/campaigns}">Кампании</a></li>
-            <li class="nav-item"><a class="nav-link" th:href="@{/channels}">Каналы</a></li>
-            <li class="nav-item active"><a class="nav-link" th:href="@{/audiences}">Аудитории</a></li>
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item" th:classappend="${requestURI == '/dashboard' ? 'active' : ''}">
+                <a class="nav-link" th:href="@{/dashboard}">Главная</a>
+            </li>
+            <li class="nav-item" th:classappend="${requestURI.startsWith('/campaigns') ? 'active' : ''}">
+                <a class="nav-link" th:href="@{/campaigns}">Кампании</a>
+            </li>
+            <li class="nav-item" th:classappend="${requestURI.startsWith('/channels') ? 'active' : ''}">
+                <a class="nav-link" th:href="@{/channels}">Каналы</a>
+            </li>
+            <li class="nav-item" th:classappend="${requestURI.startsWith('/audiences') ? 'active' : ''}">
+                <a class="nav-link" th:href="@{/audiences}">Аудитории</a>
+            </li>
             <li class="nav-item"><a class="nav-link" th:href="@{/reports}">Отчёты</a></li>
             <li class="nav-item"><a class="nav-link" th:href="@{/about}">Об авторе</a></li>
         </ul>
-        <!-- Кнопка Logout -->
-        <form th:action="@{/logout}" method="post" class="form-inline my-2 my-lg-0 ml-auto">
-            <button class="btn btn-outline-danger my-2 my-sm-0" type="submit">Logout</button>
+        <form th:action="@{/logout}" method="post" class="form-inline">
+            <button class="btn btn-outline-danger" type="submit">Logout</button>
         </form>
     </div>
 </nav>
 
-<!-- Основной контент -->
-<div class="container mt-4">
-    <h1>Управление сегментами аудитории</h1>
-    <!-- Кнопка добавления нового сегмента (только для ADMIN) -->
-    <div th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
-        <a th:href="@{/audience/new}" class="btn btn-success mb-3">Добавить сегмент</a>
+<!-- Заголовок -->
+<header class="page-header">
+    <div class="container">
+        <h1 class="mb-0">Управление сегментами аудитории</h1>
     </div>
-    <table class="table table-bordered">
-        <thead class="thead-dark">
-        <tr>
-            <th>ID</th>
-            <th>Название</th>
-            <th>Описание</th>
-            <th>Демографические данные</th>
-            <th>Действия</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="audience : ${audiences}">
-            <td th:text="${audience.audienceId}">1</td>
-            <td th:text="${audience.name}">Youth 18-25</td>
-            <td th:text="${audience.description}">Молодёжь, интересующаяся модой и технологиями</td>
-            <!-- Здесь вместо простого вывода JSON, зададим класс для последующей обработки -->
-            <td class="demographics-json" th:text="${audience.demographics}">{"age_range": "18-25", "interests":
-                ["fashion", "technology"]}
-            </td>
-            <td>
-                <a th:href="@{'/audience/edit/' + ${audience.audienceId}}" class="btn btn-primary btn-sm"
-                   th:if="${#authorization.expression('hasRole(''ADMIN'')')}">Редактировать</a>
-                <a th:href="@{'/audience/delete/' + ${audience.audienceId}}" class="btn btn-danger btn-sm"
-                   th:if="${#authorization.expression('hasRole(''ADMIN'')')}">Удалить</a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-</div>
+</header>
 
-<!-- Скрипт для форматирования JSON в ячейках с классом 'demographics-json' -->
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<!-- Контент -->
+<main class="container flex-fill">
+    <div class="mb-3" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+        <a th:href="@{/audience/new}" class="btn btn-success">Добавить сегмент</a>
+    </div>
+
+    <div class="table-container table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Название</th>
+                <th>Описание</th>
+                <th>Демографические данные</th>
+                <th class="text-center">Действия</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="audience : ${audiences}">
+                <td th:text="${audience.audienceId}">1</td>
+                <td th:text="${audience.name}">Youth 18-25</td>
+                <td th:text="${audience.description}">Молодёжь, интересующаяся модой и технологиями</td>
+                <td class="demographics-json" th:text="${audience.demographics}">
+                    {"age_range":"18-25","interests":["fashion","technology"]}
+                </td>
+                <td class="text-center actions">
+                    <a th:href="@{'/audience/edit/' + ${audience.audienceId}}"
+                       class="btn btn-primary btn-sm mb-2"
+                       th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                        Редактировать
+                    </a>
+                    <a th:href="@{'/audience/delete/' + ${audience.audienceId}}"
+                       class="btn btn-danger btn-sm"
+                       th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                        Удалить
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<!-- Футер -->
+<div th:insert="fragments/footer :: appFooter"></div>
+
+<!-- Скрипты -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
-    // После загрузки документа, пробегаем по всем ячейкам с классом 'demographics-json'
     $(document).ready(function () {
         $(".demographics-json").each(function () {
             var raw = $(this).text();
             try {
-                // Парсим содержимое как JSON
                 var obj = JSON.parse(raw);
-                // Преобразуем в красиво отформатированную строку с отступами
                 var pretty = JSON.stringify(obj, null, 2);
-                // Оборачиваем результат в тег <pre> для сохранения форматирования
                 $(this).html("<pre class='json-pretty'>" + pretty + "</pre>");
             } catch (e) {
-                // Если содержимое не является допустимым JSON, оставляем как есть
                 console.error("Не удалось распарсить JSON:", e);
             }
         });
     });
 </script>
-<div th:insert="fragments/footer :: appFooter"></div>
 </body>
 </html>

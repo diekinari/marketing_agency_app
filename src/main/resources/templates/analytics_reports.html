@@ -1,168 +1,65 @@
-<!--<!DOCTYPE html>-->
-<!--<html xmlns:th="http://www.thymeleaf.org"-->
-<!--      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"-->
-<!--      lang="ru">-->
-<!--<head>-->
-<!--    <meta charset="UTF-8">-->
-<!--    <title>Отчёты - MarketingAgencyApp</title>-->
-<!--    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">-->
-<!--    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>-->
-<!--</head>-->
-<!--<body>-->
-<!--&lt;!&ndash; Навигация &ndash;&gt;-->
-<!--<nav class="navbar navbar-expand-lg navbar-dark bg-dark">-->
-<!--    <a class="navbar-brand" th:href="@{/dashboard}">MarketingAgencyApp</a>-->
-<!--    <div class="collapse navbar-collapse" id="navbarNav">-->
-<!--        <ul class="navbar-nav">-->
-<!--            <li class="nav-item"><a class="nav-link" th:href="@{/dashboard}">Главная</a></li>-->
-<!--            <li class="nav-item"><a class="nav-link" th:href="@{/campaigns}">Кампании</a></li>-->
-<!--            <li class="nav-item"><a class="nav-link" th:href="@{/channels}">Каналы</a></li>-->
-<!--            <li class="nav-item"><a class="nav-link" th:href="@{/audiences}">Аудитории</a></li>-->
-<!--            <li class="nav-item active"><a class="nav-link" th:href="@{/reports}">Отчёты</a></li>-->
-<!--            <li class="nav-item"><a class="nav-link" th:href="@{/about}">Об авторе</a></li>-->
-<!--        </ul>-->
-<!--        <form th:action="@{/logout}" method="post" class="form-inline my-2 my-lg-0 ml-auto">-->
-<!--            <button class="btn btn-outline-danger my-2 my-sm-0" type="submit">Logout</button>-->
-<!--        </form>-->
-<!--    </div>-->
-<!--</nav>-->
-
-<!--<div class="container mt-4">-->
-<!--    <h1>Аналитика и отчёты</h1>-->
-
-<!--    &lt;!&ndash; Форма фильтрации по периоду &ndash;&gt;-->
-<!--    <form class="form-inline mb-3" th:action="@{/reports}" method="get">-->
-<!--        <label class="mr-2">Период:</label>-->
-<!--        <input type="date" class="form-control mr-2" name="startDate" th:value="${startDate}">-->
-<!--        <input type="date" class="form-control mr-2" name="endDate" th:value="${endDate}">-->
-<!--        <button type="submit" class="btn btn-primary">Применить</button>-->
-<!--    </form>-->
-
-<!--    &lt;!&ndash; Базовый график для всех пользователей &ndash;&gt;-->
-<!--    <div class="card mb-4">-->
-<!--        <div class="card-header">Динамика показов</div>-->
-<!--        <div class="card-body">-->
-<!--            <canvas id="impressionsChart" width="400" height="200"></canvas>-->
-<!--        </div>-->
-<!--    </div>-->
-
-<!--    &lt;!&ndash; Расширенные данные для администраторов &ndash;&gt;-->
-<!--    <div sec:authorize="hasRole('ADMIN')">-->
-<!--        <h2>Дополнительная аналитика (для администраторов)</h2>-->
-<!--        <div class="card mb-4">-->
-<!--            <div class="card-header">Динамика кликов</div>-->
-<!--            <div class="card-body">-->
-<!--                <canvas id="clicksChart" width="400" height="200"></canvas>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--        &lt;!&ndash; Добавьте дополнительные блоки по необходимости &ndash;&gt;-->
-<!--&lt;!&ndash;        <button class="btn btn-success" onclick="exportData()">Экспорт данных в CSV</button>&ndash;&gt;-->
-<!--    </div>-->
-<!--</div>-->
-
-<!--<script th:inline="javascript">-->
-<!--    /*<![CDATA[*/-->
-<!--    var ctx = document.getElementById('impressionsChart').getContext('2d');-->
-<!--    var labels = /*[[${chartLabels}]]*/ ['Март','Апрель','Май','Июнь','Июль'];-->
-<!--    var dataPoints = /*[[${chartData}]]*/ [50000,60000,55000,65000,70000];-->
-<!--    new Chart(ctx, {-->
-<!--        type: 'line',-->
-<!--        data: {-->
-<!--            labels: labels,-->
-<!--            datasets: [{-->
-<!--                label: 'Показы',-->
-<!--                data: dataPoints,-->
-<!--                backgroundColor: 'rgba(54, 162, 235, 0.2)',-->
-<!--                borderColor: 'rgba(54, 162, 235, 1)',-->
-<!--                borderWidth: 2,-->
-<!--                fill: true-->
-<!--            }]-->
-<!--        },-->
-<!--        options: {-->
-<!--            responsive: true,-->
-<!--            scales: {-->
-<!--                y: {-->
-<!--                    beginAtZero: true,-->
-<!--                    title: {-->
-<!--                        display: true,-->
-<!--                        text: 'Показы'-->
-<!--                    }-->
-<!--                },-->
-<!--                x: {-->
-<!--                    title: {-->
-<!--                        display: true,-->
-<!--                        text: 'Дата'-->
-<!--                    }-->
-<!--                }-->
-<!--            }-->
-<!--        }-->
-<!--    });-->
-
-<!--    var showExtendedChart = /*[[${extendedChartLabels != null and extendedChartData != null}]]*/ false;-->
-
-<!--    if (showExtendedChart) {-->
-<!--        var ctxClicks = document.getElementById('clicksChart').getContext('2d');-->
-<!--        var clicksLabels = /*[[${extendedChartLabels}]]*/ ['Март','Апрель','Май','Июнь','Июль'];-->
-<!--        var clicksData = /*[[${extendedChartData}]]*/ [1000,1500,1200,1700,1600];-->
-
-<!--        new Chart(ctxClicks, {-->
-<!--            type: 'line',-->
-<!--            data: {-->
-<!--                labels: clicksLabels,-->
-<!--                datasets: [{-->
-<!--                    label: 'Клики',-->
-<!--                    data: clicksData,-->
-<!--                    backgroundColor: 'rgba(255, 99, 132, 0.2)',-->
-<!--                    borderColor: 'rgba(255, 99, 132, 1)',-->
-<!--                    borderWidth: 2,-->
-<!--                    fill: true-->
-<!--                }]-->
-<!--            },-->
-<!--            options: {-->
-<!--                responsive: true,-->
-<!--                scales: {-->
-<!--                    y: {-->
-<!--                        beginAtZero: true,-->
-<!--                        title: {-->
-<!--                            display: true,-->
-<!--                            text: 'Клики'-->
-<!--                        }-->
-<!--                    },-->
-<!--                    x: {-->
-<!--                        title: {-->
-<!--                            display: true,-->
-<!--                            text: 'Дата'-->
-<!--                        }-->
-<!--                    }-->
-<!--                }-->
-<!--            }-->
-<!--        });-->
-<!--    }-->
-<!--    /*]]>*/-->
-<!--</script>-->
-
-
-<!--<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>-->
-<!--<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>-->
-<!--<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>-->
-<!--</body>-->
-<!--</html>-->
-
-
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
-      lang="ru">
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Отчёты - MarketingAgencyApp</title>
+    <title>Отчёты – MarketingAgencyApp</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js v3+ -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
+    <!-- адаптер даты (Date-Fns) -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+    <!-- плагин zoom v2 -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+
+    <style>
+        body {
+            background: #f8f9fa;
+            font-family: "Helvetica Neue", Arial, sans-serif;
+        }
+
+        .page-header {
+            padding: 2rem 1rem;
+            background: #fff;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .form-inline .form-control,
+        .form-inline .btn {
+            margin-right: .5rem;
+        }
+
+        .card-report {
+            border: 1px solid #ddd;
+            border-radius: .25rem;
+            margin-bottom: 1rem;
+            background: #fff;
+        }
+
+        .card-report .card-header {
+            background: #0070c9;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .card-report .card-body {
+            padding: 1rem;
+        }
+    </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
+
 <!-- Навигация -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" th:href="@{/dashboard}">MarketingAgencyApp</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarNav" aria-controls="navbarNav"
+            aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
             <li class="nav-item"><a class="nav-link" th:href="@{/dashboard}">Главная</a></li>
@@ -177,13 +74,19 @@
         </form>
     </div>
 </nav>
-<div class="container mt-4">
-    <h1>Аналитика и отчёты</h1>
 
-    <form class="form-inline mb-3" th:action="@{/reports}" method="get">
-        <!-- Выбор кампании -->
+<!-- Заголовок -->
+<header class="page-header">
+    <div class="container">
+        <h1 class="mb-0">Аналитика и отчёты</h1>
+    </div>
+</header>
+
+<!-- Фильтр -->
+<main class="container flex-fill">
+    <form class="form-inline mb-4" th:action="@{/reports}" method="get">
         <label class="mr-2">Кампания:</label>
-        <select name="campaignId" class="form-control mr-3">
+        <select name="campaignId" class="form-control">
             <option value="" th:selected="${selectedCampaignId == null}">Все кампании</option>
             <option th:each="c : ${campaigns}"
                     th:value="${c.campaignId}"
@@ -192,78 +95,180 @@
             </option>
         </select>
 
-        <!-- Период -->
-        <label class="mr-2">Период:</label>
-        <input type="date" name="startDate" class="form-control mr-2" th:value="${startDate}">
-        <input type="date" name="endDate"   class="form-control mr-2" th:value="${endDate}">
+        <label class="ml-3 mr-2">Период:</label>
+        <input type="date" name="startDate" class="form-control" th:value="${startDate}">
+        <input type="date" name="endDate" class="form-control" th:value="${endDate}">
 
         <button type="submit" class="btn btn-primary">Применить</button>
     </form>
 
-    <!-- Графики -->
     <div class="row">
+        <!-- Показы -->
         <div class="col-md-6">
-            <div class="card mb-4">
-                <div class="card-header">Динамика показов</div>
-                <div class="card-body">
-                    <canvas id="impressionsChart"></canvas>
+            <div class="card-report">
+                <div class="card-header d-flex justify-content-between align-items-center"
+                     data-toggle="collapse" data-target="#imprCard" aria-expanded="true">
+                    <span>Динамика показов</span>
+                    <!-- Ставим event.stopPropagation(), чтобы не вызывался collapse -->
+                    <button type="button" class="btn btn-light btn-sm"
+                            onclick="event.stopPropagation(); chartInstances['impressionsChart'].resetZoom();">
+                        Сбросить
+                    </button>
+                </div>
+                <div id="imprCard" class="collapse show">
+                    <div class="card-body">
+                        <canvas id="impressionsChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- Клики -->
         <div class="col-md-6">
-            <div class="card mb-4">
-                <div class="card-header">Динамика кликов</div>
-                <div class="card-body">
-                    <canvas id="clicksChart"></canvas>
+            <div class="card-report">
+                <div class="card-header d-flex justify-content-between align-items-center"
+                     data-toggle="collapse" data-target="#clkCard" aria-expanded="true">
+                    <span>Динамика кликов</span>
+                    <button type="button" class="btn btn-light btn-sm"
+                            onclick="event.stopPropagation(); chartInstances['clicksChart'].resetZoom();">
+                        Сбросить
+                    </button>
+                </div>
+                <div id="clkCard" class="collapse show">
+                    <div class="card-body">
+                        <canvas id="clicksChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- Конверсии -->
         <div class="col-md-6">
-            <div class="card mb-4">
-                <div class="card-header">Динамика конверсий</div>
-                <div class="card-body">
-                    <canvas id="conversionsChart"></canvas>
+            <div class="card-report">
+                <div class="card-header d-flex justify-content-between align-items-center"
+                     data-toggle="collapse" data-target="#convCard" aria-expanded="true">
+                    <span>Динамика конверсий</span>
+                    <button type="button" class="btn btn-light btn-sm"
+                            onclick="event.stopPropagation(); chartInstances['conversionsChart'].resetZoom();">
+                        Сбросить
+                    </button>
+                </div>
+                <div id="convCard" class="collapse show">
+                    <div class="card-body">
+                        <canvas id="conversionsChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- Потрачено -->
         <div class="col-md-6">
-            <div class="card mb-4">
-                <div class="card-header">Потрачено</div>
-                <div class="card-body">
-                    <canvas id="spentChart"></canvas>
+            <div class="card-report">
+                <div class="card-header d-flex justify-content-between align-items-center"
+                     data-toggle="collapse" data-target="#spentCard" aria-expanded="true">
+                    <span>Потрачено</span>
+                    <button type="button" class="btn btn-light btn-sm"
+                            onclick="event.stopPropagation(); chartInstances['spentChart'].resetZoom();">
+                        Сбросить
+                    </button>
+                </div>
+                <div id="spentCard" class="collapse show">
+                    <div class="card-body">
+                        <canvas id="spentChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</main>
 
+<!-- JS для графиков -->
 <script th:inline="javascript">
     /*<![CDATA[*/
-    var labels =   /*[[${chartLabels}]]*/ [];
-    var imprData = /*[[${impressionsData}]]*/ [];
-    var clkData =  /*[[${clicksData}]]*/ [];
-    var convData = /*[[${conversionsData}]]*/ [];
-    var spentData= /*[[${spentData}]]*/ [];
+    // 1) Регистрируем Zoom-плагин
+    Chart.register(ChartZoom);
 
+    // 2) Готовим данные
+    const rawLabels = /*[[${chartLabels}]]*/ [];
+    const labels = rawLabels.map(l => new Date(l));
+    const imprData = /*[[${impressionsData}]]*/ [];
+    const clkData = /*[[${clicksData}]]*/ [];
+    const convData = /*[[${conversionsData}]]*/ [];
+    const spentData = /*[[${spentData}]]*/ [];
+
+    // 3) Хранилище инстансов
+    const chartInstances = {};
+
+    // 4) Цветовая палитра по умолчанию
+    const colorMap = {
+        'impressionsChart': '#007bff',  // синий
+        'clicksChart': '#28a745',  // зеленый
+        'conversionsChart': '#ffc107',  // желтый
+        'spentChart': '#dc3545'   // красный
+    };
+
+    // 5) Функция создания графика
     function buildLine(ctxId, label, data) {
-        let ctx = document.getElementById(ctxId).getContext('2d');
-        new Chart(ctx, {
+        const ctx = document.getElementById(ctxId).getContext('2d');
+        chartInstances[ctxId] = new Chart(ctx, {
             type: 'line',
-            data: { labels: labels, datasets:[{ label: label, data: data, fill:false }]},
-            options: { responsive:true, scales:{ y:{ beginAtZero:true } } }
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: label,
+                    data: data,
+                    fill: false,
+                    borderColor: '#4077b1',
+                    backgroundColor: '#4077b1',
+                    tension: 0.2
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {unit: 'day', displayFormats: {day: 'MMM d'}},
+                        title: {display: true, text: 'Дата'},
+                        min: labels[0],
+                        max: labels[labels.length - 1]
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {display: true, text: label}
+                    }
+                },
+                plugins: {
+                    zoom: {
+                        pan: {enabled: true, mode: 'x'},
+                        zoom: {
+                            wheel: {enabled: true},
+                            pinch: {enabled: true},
+                            mode: 'x'
+                        },
+                        limits: {
+                            x: {min: labels[0], max: labels[labels.length - 1]}
+                        }
+                    },
+                    legend: {display: false}
+                }
+            }
         });
     }
 
-    buildLine('impressionsChart', 'Показы',      imprData);
-    buildLine('clicksChart',      'Клики',       clkData);
-    buildLine('conversionsChart','Конверсии',  convData);
-    buildLine('spentChart',      'Потрачено',    spentData);
+    // 6) Строим все четыре графика
+    buildLine('impressionsChart', 'Показы', imprData);
+    buildLine('clicksChart', 'Клики', clkData);
+    buildLine('conversionsChart', 'Конверсии', convData);
+    buildLine('spentChart', 'Потрачено', spentData);
     /*]]>*/
 </script>
 
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<div th:insert="fragments/footer :: appFooter"></div>
+
+<div th:insert="~{fragments/footer :: appFooter}"></div>
 </body>
 </html>
