@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Login - Calculator App</title>
+  <title>Вход – MarketingAgencyApp</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <style>
     body {
@@ -55,22 +55,19 @@
     }
   </style>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 <div class="login-container">
-  <h2>Please Sign In</h2>
+  <h2>Пожалуйста, войдите</h2>
   <form th:action="@{/login}" method="post">
-    <input type="text" name="username" class="form-control" placeholder="Username" required>
-    <input type="password" name="password" class="form-control" placeholder="Password" required>
-    <button type="submit" class="btn btn-primary btn-block">Sign In</button>
-  </form>
-  <form th:action="@{/login}" method="post">
-    <input type="hidden" name="username" value="admin">
-    <input type="hidden" name="password" value="admin">
-    <button type="submit" class="btn btn-primary btn-block">Debug Login</button>
+    <input type="text" name="username" class="form-control" placeholder="Имя пользователя" required>
+    <input type="password" name="password" class="form-control" placeholder="Пароль" required>
+    <button type="submit" class="btn btn-primary btn-block">Войти</button>
   </form>
   <div class="register-link">
-    <p>Not registered yet? <a th:href="@{/register}">Create an account</a></p>
+    <p>Ещё не зарегистрированы? <a th:href="@{/register}">Создайте аккаунт</a></p>
   </div>
 </div>
+
+<div th:insert="fragments/footer :: appFooter"></div>
 </body>
 </html>

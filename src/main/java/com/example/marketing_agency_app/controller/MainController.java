@@ -12,11 +12,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -25,27 +22,40 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * Главный контроллер приложения.
+ * Обрабатывает CRUD-операции для кампаний, каналов, сегментов аудитории,
+ * а также отображение аналитики и отчётов.
+ */
 @Controller
 public class MainController {
 
-
     private final CampaignService campaignService;
-
     private final ChannelService channelService;
-
     private final AudienceService audienceService;
-
     private final ReportsService reportsService;
-
     private final ObjectMapper objectMapper;
 
-
-    public MainController(AudienceService audienceService, CampaignService campaignService, ChannelService channelService, ReportsService reportsService, ObjectMapper objectMapper) {
+    /**
+     * Конструктор для MainController.
+     *
+     * @param audienceService   сервис по работе с сегментами аудитории
+     * @param campaignService   сервис по работе с кампаниями
+     * @param channelService    сервис по работе с каналами
+     * @param reportsService    сервис формирования аналитики и отчётов
+     * @param objectMapper      Jackson ObjectMapper для работы с JSON
+     */
+    public MainController(AudienceService audienceService,
+                          CampaignService campaignService,
+                          ChannelService channelService,
+                          ReportsService reportsService,
+                          ObjectMapper objectMapper) {
         this.audienceService = audienceService;
         this.campaignService = campaignService;
         this.channelService = channelService;
@@ -53,18 +63,21 @@ public class MainController {
         this.objectMapper = objectMapper;
     }
 
-
     // ------------------ Кампании ------------------
 
-    // Главная страница (Dashboard) с динамическими данными кампаний
-//    @GetMapping({"/", "/dashboard"})
-//    public String dashboard(Model model, HttpServletRequest request) {
-//        List<CampaignMetrics> campaignsMetrics = campaignService.findCampaignMetrics();
-//        model.addAttribute("campaigns", campaignsMetrics);
-//        model.addAttribute("requestURI", request.getRequestURI());
-//        return "dashboard";
-//    }
-
+    /**
+     * Отображает дашборд со списком кампаний и позволяет фильтровать/сортировать.
+     *
+     * @param model      модель MVC
+     * @param request    HTTP-запрос (для получения URI)
+     * @param name       фильтр по названию кампании (частичное совпадение)
+     * @param startDate  фильтр по дате начала
+     * @param endDate    фильтр по дате окончания
+     * @param status     фильтр по статусу кампании
+     * @param sortField  поле для сортировки
+     * @param sortDir    направление сортировки ("asc" или "desc")
+     * @return           имя Thymeleaf-шаблона "dashboard"
+     */
     @GetMapping({"/", "/dashboard"})
     public String dashboard(Model model,
                             HttpServletRequest request,
@@ -73,51 +86,78 @@ public class MainController {
                             @RequestParam(value = "endDate", required = false) String endDate,
                             @RequestParam(value = "status", required = false) String status,
                             @RequestParam(value = "sortField", defaultValue = "startDate") String sortField,
-                            @RequestParam(value = "sortDir",   defaultValue = "asc")       String sortDir) {
+                            @RequestParam(value = "sortDir", defaultValue = "asc") String sortDir) {
 
-        // 1) Формируем объект Sort
         Sort sort = Sort.by(sortField);
         sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
 
-        // 2) Получаем отфильтрованный и отсортированный список метрик
         List<CampaignMetrics> campaigns =
                 campaignService.findFilteredCampaignMetrics(name, startDate, endDate, status, sort);
 
-        // 3) Пробрасываем в модель все параметры для формы и ссылок
-        model.addAttribute("campaigns",       campaigns);
-        model.addAttribute("requestURI",      request.getRequestURI());
-        model.addAttribute("name",            name);
-        model.addAttribute("startDate",       startDate);
-        model.addAttribute("endDate",         endDate);
-        model.addAttribute("status",          status);
-        model.addAttribute("sortField",       sortField);
-        model.addAttribute("sortDir",         sortDir);
-        model.addAttribute("reverseSortDir",  "asc".equalsIgnoreCase(sortDir) ? "desc" : "asc");
+        model.addAttribute("campaigns",      campaigns);
+        model.addAttribute("requestURI",     request.getRequestURI());
+        model.addAttribute("name",           name);
+        model.addAttribute("startDate",      startDate);
+        model.addAttribute("endDate",        endDate);
+        model.addAttribute("status",         status);
+        model.addAttribute("sortField",      sortField);
+        model.addAttribute("sortDir",        sortDir);
+        model.addAttribute("reverseSortDir", "asc".equalsIgnoreCase(sortDir) ? "desc" : "asc");
 
         return "dashboard";
     }
 
-
-    // Страница со списком кампаний
+    /**
+     * Отображает список всех кампаний.
+     *
+     * @param model   модель MVC
+     * @param request HTTP-запрос
+     * @return        имя Thymeleaf-шаблона "campaigns"
+     */
     @GetMapping("/campaigns")
     public String campaigns(Model model, HttpServletRequest request) {
         List<Campaign> campaigns = campaignService.findAll();
-        model.addAttribute("campaigns", campaigns);
+        model.addAttribute("campaigns",  campaigns);
         model.addAttribute("requestURI", request.getRequestURI());
         return "campaigns";
     }
 
-    // Форма создания новой кампании (ADMIN)
+    /**
+     * Форма создания новой кампании (доступно ADMIN).
+     *
+     * @param model модель MVC
+     * @return      имя Thymeleaf-шаблона "campaign_form"
+     */
     @GetMapping("/campaign/new")
     @PreAuthorize("hasRole('ADMIN')")
     public String newCampaign(Model model) {
-        model.addAttribute("campaign", new Campaign());
-        model.addAttribute("channels", channelService.findAll());
-        model.addAttribute("audiences", audienceService.findAll());
+        model.addAttribute("campaign",         new Campaign());
+        model.addAttribute("channels",         channelService.findAll());
+        model.addAttribute("audiences",        audienceService.findAll());
         model.addAttribute("availableChannels", channelService.findAll());
         return "campaign_form";
     }
 
+    /**
+     * Сохраняет новую или отредактированную кампанию вместе с каналами и аудиториями (доступно ADMIN).
+     *
+     * @param campaign                   объект Campaign из формы
+     * @param channelIds                 id существующих каналов
+     * @param channelBudgets             бюджеты по существующим каналам
+     * @param channelImpressions         показы по существующим каналам
+     * @param channelClicks              клики по существующим каналам
+     * @param channelConversions         конверсии по существующим каналам
+     * @param channelSpentAmounts        потраченные суммы по существующим каналам
+     * @param newChannelIds              id новых каналов
+     * @param newChannelBudgets          бюджеты по новым каналам
+     * @param newChannelImpressions      показы по новым каналам
+     * @param newChannelClicks           клики по новым каналам
+     * @param newChannelConversions      конверсии по новым каналам
+     * @param newChannelSpentAmounts     потраченные суммы по новым каналам
+     * @param deletedChannelIds          перечисленные через запятую id удалённых каналов
+     * @param audienceIds                id сегментов аудитории
+     * @return                           редирект на список кампаний
+     */
     @PostMapping("/campaign/save")
     @PreAuthorize("hasRole('ADMIN')")
     public String saveCampaign(
@@ -146,8 +186,13 @@ public class MainController {
         return "redirect:/campaigns";
     }
 
-
-    // Форма редактирования кампании (ADMIN)
+    /**
+     * Форма редактирования кампании (доступно ADMIN).
+     *
+     * @param id    идентификатор кампании
+     * @param model модель MVC
+     * @return      имя шаблона "campaign_form" или редирект, если не найдено
+     */
     @GetMapping("/campaign/edit/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public String editCampaign(@PathVariable("id") Long id, Model model) {
@@ -157,14 +202,19 @@ public class MainController {
                         .map(ca -> ca.getAudience().getAudienceId())
                         .collect(Collectors.toList())
         );
-        model.addAttribute("campaign", campaign);
-        model.addAttribute("channels", channelService.findAll());
-        model.addAttribute("audiences", audienceService.findAll());
+        model.addAttribute("campaign",          campaign);
+        model.addAttribute("channels",          channelService.findAll());
+        model.addAttribute("audiences",         audienceService.findAll());
         model.addAttribute("availableChannels", channelService.findAvailableChannels(campaign.getCampaignChannels()));
         return "campaign_form";
     }
 
-    // Удаление кампании (ADMIN)
+    /**
+     * Удаляет кампанию по id (доступно ADMIN).
+     *
+     * @param id идентификатор кампании
+     * @return   редирект на список кампаний
+     */
     @GetMapping("/campaign/delete/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public String deleteCampaign(@PathVariable("id") Long id) {
@@ -174,24 +224,40 @@ public class MainController {
 
     // ------------------ Каналы ------------------
 
-    // Страница со списком каналов
+    /**
+     * Отображает список всех каналов.
+     *
+     * @param model   модель MVC
+     * @param request HTTP-запрос
+     * @return        имя шаблона "channels_management"
+     */
     @GetMapping("/channels")
     public String channels(Model model, HttpServletRequest request) {
         List<Channel> channels = channelService.findAll();
-        model.addAttribute("channels", channels);
+        model.addAttribute("channels",  channels);
         model.addAttribute("requestURI", request.getRequestURI());
         return "channels_management";
     }
 
-    // Форма создания нового канала (ADMIN)
+    /**
+     * Форма создания нового канала (доступно ADMIN).
+     *
+     * @param model модель MVC
+     * @return      имя шаблона "channel_form"
+     */
     @GetMapping("/channel/new")
     @PreAuthorize("hasRole('ADMIN')")
     public String newChannel(Model model) {
         model.addAttribute("channel", new Channel());
-        return "channel_form";  // Создайте шаблон channel_form.html
+        return "channel_form";
     }
 
-    // Сохранение канала (ADMIN)
+    /**
+     * Сохраняет новый или отредактированный канал (доступно ADMIN).
+     *
+     * @param channel объект Channel из формы
+     * @return        редирект на список каналов
+     */
     @PostMapping("/channel/save")
     @PreAuthorize("hasRole('ADMIN')")
     public String saveChannel(@ModelAttribute("channel") Channel channel) {
@@ -199,7 +265,13 @@ public class MainController {
         return "redirect:/channels";
     }
 
-    // Форма редактирования канала (ADMIN)
+    /**
+     * Форма редактирования канала (доступно ADMIN).
+     *
+     * @param id    идентификатор канала
+     * @param model модель MVC
+     * @return      имя шаблона "channel_form" или редирект, если не найден
+     */
     @GetMapping("/channel/edit/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public String editChannel(@PathVariable("id") Long id, Model model) {
@@ -211,7 +283,12 @@ public class MainController {
         return "channel_form";
     }
 
-    // Удаление канала (ADMIN)
+    /**
+     * Удаляет канал по id (доступно ADMIN).
+     *
+     * @param id идентификатор канала
+     * @return   редирект на список каналов
+     */
     @GetMapping("/channel/delete/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public String deleteChannel(@PathVariable("id") Long id) {
@@ -221,29 +298,52 @@ public class MainController {
 
     // ------------------ Аудитории ------------------
 
-    // Страница со списком сегментов аудитории
+    /**
+     * Отображает список сегментов аудитории.
+     *
+     * @param model   модель MVC
+     * @param request HTTP-запрос
+     * @return        имя шаблона "audience_segments_management"
+     */
     @GetMapping("/audiences")
     public String audiences(Model model, HttpServletRequest request) {
         List<AudienceSegment> audiences = audienceService.findAll();
-        model.addAttribute("audiences", audiences);
+        model.addAttribute("audiences",  audiences);
         model.addAttribute("requestURI", request.getRequestURI());
         return "audience_segments_management";
     }
 
-    // Форма создания нового сегмента аудитории (ADMIN)
+    /**
+     * Форма создания нового сегмента аудитории (доступно ADMIN).
+     *
+     * @param model модель MVC
+     * @return      имя шаблона "audience_form"
+     */
     @GetMapping("/audience/new")
     @PreAuthorize("hasRole('ADMIN')")
     public String newAudience(Model model) {
         model.addAttribute("audience", new AudienceSegment());
-        return "audience_form";  // Создайте шаблон audience_form.html
+        return "audience_form";
     }
 
-
+    /**
+     * Блокирует поле demographics от автоматического биндинга.
+     *
+     * @param binder биндер данных формы
+     */
     @InitBinder("audience")
     protected void initBinder(WebDataBinder binder) {
         binder.setDisallowedFields("demographics");
     }
 
+    /**
+     * Сохраняет сегмент аудитории, парся JSON демографии (доступно ADMIN).
+     *
+     * @param audience        объект AudienceSegment из формы
+     * @param demographicsJson текст JSON из формы
+     * @param model           модель для ошибок
+     * @return                редирект или возврат формы при ошибке
+     */
     @PostMapping("/audience/save")
     @PreAuthorize("hasRole('ADMIN')")
     public String saveAudience(
@@ -251,27 +351,29 @@ public class MainController {
             @RequestParam("demographics") String demographicsJson,
             Model model
     ) {
-        // 1) Парсим строку в JsonNode (или в пустой объект, если пусто)
-        ObjectMapper mapper = new ObjectMapper();
         JsonNode demoNode;
         if (demographicsJson != null && !demographicsJson.trim().isEmpty()) {
             try {
-                demoNode = mapper.readTree(demographicsJson);
+                demoNode = objectMapper.readTree(demographicsJson);
             } catch (JsonProcessingException e) {
                 model.addAttribute("jsonError", "Некорректный JSON: " + e.getOriginalMessage());
                 return "audience_form";
             }
         } else {
-            demoNode = mapper.createObjectNode();
+            demoNode = objectMapper.createObjectNode();
         }
         audience.setDemographics(demoNode);
-
-        // 2) Сохраняем
         audienceService.save(audience);
         return "redirect:/audiences";
     }
 
-    // Форма редактирования сегмента аудитории (ADMIN)
+    /**
+     * Форма редактирования сегмента аудитории (доступно ADMIN).
+     *
+     * @param id    идентификатор сегмента
+     * @param model модель MVC
+     * @return      имя шаблона "audience_form" или редирект, если не найден
+     */
     @GetMapping("/audience/edit/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public String editAudience(@PathVariable("id") Long id, Model model) {
@@ -283,7 +385,12 @@ public class MainController {
         return "audience_form";
     }
 
-    // Удаление сегмента аудитории (ADMIN)
+    /**
+     * Удаляет сегмент аудитории по id (доступно ADMIN).
+     *
+     * @param id идентификатор сегмента
+     * @return   редирект на список сегментов
+     */
     @GetMapping("/audience/delete/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public String deleteAudience(@PathVariable("id") Long id) {
@@ -293,20 +400,29 @@ public class MainController {
 
     // ------------------ Отчёты и информация ------------------
 
-
+    /**
+     * Отображает страницу аналитики и отчётов с распределением метрик кампании по дням.
+     *
+     * @param model      модель MVC
+     * @param campaignId опциональный id выбранной кампании
+     * @param startStr   строка начала периода
+     * @param endStr     строка конца периода
+     * @return           имя шаблона "analytics_reports"
+     */
     @GetMapping("/reports")
     public String reports(
             Model model,
-            @RequestParam(value="campaignId", required=false) Long campaignId,
-            @RequestParam(value="startDate",  required=false) String startStr,
-            @RequestParam(value="endDate",    required=false) String endStr
+            @RequestParam(value = "campaignId", required = false) Long campaignId,
+            @RequestParam(value = "startDate",   required = false) String startStr,
+            @RequestParam(value = "endDate",     required = false) String endStr
     ) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         LocalDate start;
         LocalDate end;
-
-        if (campaignId != null && (startStr == null || startStr.isEmpty()) && (endStr == null || endStr.isEmpty())) {
+        if (campaignId != null
+                && (startStr == null || startStr.isEmpty())
+                && (endStr == null   || endStr.isEmpty())) {
             Campaign c = campaignService.findById(campaignId);
             start = c.getStartDate();
             end   = c.getEndDate();
@@ -314,30 +430,32 @@ public class MainController {
             start = (startStr != null && !startStr.isEmpty())
                     ? LocalDate.parse(startStr, dtf)
                     : LocalDate.now().minusMonths(1);
-            end   = (endStr != null && !endStr.isEmpty())
+            end   = (endStr   != null && !endStr.isEmpty())
                     ? LocalDate.parse(endStr, dtf)
                     : LocalDate.now();
         }
 
-        // Список кампаний для dropdown
         List<Campaign> campaigns = campaignService.findAll();
-        model.addAttribute("campaigns", campaigns);
+        model.addAttribute("campaigns",          campaigns);
         model.addAttribute("selectedCampaignId", campaignId);
 
-        // Данные для графиков
-        Map<String,Object> data = reportsService.getDailyMetrics(campaignId, start, end);
-        model.addAttribute("chartLabels",      data.get("labels"));
-        model.addAttribute("impressionsData",  data.get("impressions"));
-        model.addAttribute("clicksData",       data.get("clicks"));
-        model.addAttribute("conversionsData",  data.get("conversions"));
-        model.addAttribute("spentData",        data.get("spent"));
+        Map<String, Object> data = reportsService.getDailyMetrics(campaignId, start, end);
+        model.addAttribute("chartLabels",     data.get("labels"));
+        model.addAttribute("impressionsData", data.get("impressions"));
+        model.addAttribute("clicksData",      data.get("clicks"));
+        model.addAttribute("conversionsData", data.get("conversions"));
+        model.addAttribute("spentData",       data.get("spent"));
+        model.addAttribute("startDate",       startStr);
+        model.addAttribute("endDate",         endStr);
 
-        model.addAttribute("startDate", startStr);
-        model.addAttribute("endDate",   endStr);
         return "analytics_reports";
     }
 
-    // Страница "Об авторе"
+    /**
+     * Отображает страницу "Об авторе".
+     *
+     * @return имя шаблона "about"
+     */
     @GetMapping("/about")
     public String about() {
         return "about";

@@ -10,7 +10,7 @@
         }
     </style>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" th:href="@{/dashboard}">MarketingAgencyApp</a>
     <div class="collapse navbar-collapse" id="navbarNav">
@@ -149,17 +149,17 @@
                         </div>
                         <div class="form-group col-md-3">
                             <label>Клики</label>
-                            <input type="number" name="newChannelClicks" class="form-control" step="1" min="0" >
+                            <input type="number" name="newChannelClicks" class="form-control" step="1" min="0">
                         </div>
                         <div class="form-group col-md-3">
                             <label>Конверсии</label>
                             <input type="number" name="newChannelConversions" class="form-control" step="1" min="0"
-                                   >
+                            >
                         </div>
                         <div class="form-group col-md-3">
                             <label>Потрачено</label>
                             <input type="number" name="newChannelSpentAmounts" class="form-control" step="0.01" min="0"
-                                   >
+                            >
                         </div>
                     </div>
                     <button type="button" class="btn btn-danger btn-sm" onclick="removeNewChannel(this)">Удалить этот
@@ -221,3 +221,5 @@
         $(btn).closest('.new-channel-block').remove();
     }
 </script>
+<div th:insert="fragments/footer :: appFooter"></div>
+</body>

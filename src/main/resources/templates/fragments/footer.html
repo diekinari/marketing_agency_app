@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<body>
+<!-- Footer Fragment -->
+<footer th:fragment="appFooter" style="background:#f8f9fa; padding:15px 0; border-top:1px solid #ddd; font-size:14px;">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap">
+        <div class="d-flex align-items-center">
+            <span class="mr-3 font-weight-bold">© MarketingAgencyApp 2025</span>
+            <span>Все права защищены.</span>
+        </div>
+        <div>
+            <ul class="list-inline mb-0">
+                <li class="list-inline-item"><a th:href="@{/dashboard}" class="text-dark">Главная</a></li>
+                <li class="list-inline-item"><a th:href="@{/campaigns}" class="text-dark">Кампании</a></li>
+                <li class="list-inline-item"><a th:href="@{/channels}" class="text-dark">Каналы</a></li>
+                <li class="list-inline-item"><a th:href="@{/audiences}" class="text-dark">Аудитории</a></li>
+                <li class="list-inline-item"><a th:href="@{/reports}" class="text-dark">Отчёты</a></li>
+                <li class="list-inline-item"><a th:href="@{/about}" class="text-dark">О нас</a></li>
+            </ul>
+        </div>
+        <div>
+            <a href="mailto:support@marketingagencyapp.com" class="text-dark">support@marketingagencyapp.com</a>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

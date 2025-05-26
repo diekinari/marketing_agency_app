@@ -1,25 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title><!DOCTYPE html>
-        <html xmlns:th="http://www.thymeleaf.org">
-        <head>
-        <meta charset="UTF-8">
-        <title>Register - Calculator App</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Регистрация – MarketingAgencyApp</title>
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
             background: #f8f8f8;
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
         }
         .register-container {
             max-width: 400px;
             margin: 80px auto;
             padding: 40px;
-            background: #ffffff;
+            background: #fff;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             text-align: center;
@@ -62,26 +58,98 @@
             color: red;
             margin-bottom: 15px;
         }
+        .requirements {
+            font-size: 13px;
+            color: #555;
+            text-align: left;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 <div class="register-container">
-    <h2>Create Account</h2>
+    <h2>Создать аккаунт</h2>
     <div th:if="${error}" class="error" th:text="${error}"></div>
-    <form th:action="@{/register}" th:object="${user}" method="post">
-        <input type="text" th:field="*{username}" class="form-control" placeholder="Username" required>
-        <input type="password" th:field="*{password}" class="form-control" placeholder="Password" required>
-        <button type="submit" class="btn btn-primary btn-block">Register</button>
+
+    <form th:action="@{/register}"
+          th:object="${user}"
+          method="post"
+          id="registerForm">
+
+        <input type="text"
+               th:field="*{username}"
+               class="form-control"
+               placeholder="Имя пользователя"
+               required>
+
+        <!-- Поле для email -->
+        <input type="email"
+               th:field="*{email}"
+               class="form-control"
+               placeholder="Электронная почта"
+               required
+               id="email">
+
+        <input type="password"
+               th:field="*{password}"
+               class="form-control"
+               placeholder="Пароль"
+               required
+               id="password">
+
+        <!-- Требования к паролю -->
+        <div class="requirements">
+            Пароль должен содержать минимум 8 символов, хотя бы одну цифру и одну заглавную букву.
+        </div>
+
+        <!-- Ошибки -->
+        <div id="pwdError" class="error" style="display:none;">
+            Пароль не соответствует требованиям.
+        </div>
+        <div id="emailError" class="error" style="display:none;">
+            Пожалуйста, введите корректный адрес электронной почты.
+        </div>
+
+        <button type="submit"
+                class="btn btn-primary btn-block">
+            Зарегистрироваться
+        </button>
     </form>
+
     <div class="login-link">
-        <p>Already have an account? <a th:href="@{/login}">Sign In</a></p>
+        <p>Уже есть аккаунт?
+            <a th:href="@{/login}">Войти</a>
+        </p>
     </div>
 </div>
-</body>
-</html>
-</title>
-</head>
-<body>
 
+<script>
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        let hasError = false;
+        const pwd = document.getElementById('password').value;
+        const email = document.getElementById('email').value;
+        const pwdPattern = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!pwdPattern.test(pwd)) {
+            document.getElementById('pwdError').style.display = 'block';
+            hasError = true;
+        } else {
+            document.getElementById('pwdError').style.display = 'none';
+        }
+
+        if (!emailPattern.test(email)) {
+            document.getElementById('emailError').style.display = 'block';
+            hasError = true;
+        } else {
+            document.getElementById('emailError').style.display = 'none';
+        }
+
+        if (hasError) {
+            e.preventDefault();
+        }
+    });
+</script>
+<div th:insert="fragments/footer :: appFooter"></div>
 </body>
 </html>

@@ -13,16 +13,31 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+/**
+ * Конфигурация безопасности Spring Security.
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
 
+    /**
+     * Конструктор с внедрением сервиса пользовательских данных.
+     *
+     * @param userDetailsService сервис, реализующий логику загрузки пользователей
+     */
     public SecurityConfig(CustomUserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
+    /**
+     * Конфигурация фильтра безопасности, определяющая правила доступа и настройки формы входа.
+     *
+     * @param http объект конфигурации безопасности
+     * @return фильтр безопасности
+     * @throws Exception в случае ошибки конфигурации
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -43,11 +58,21 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Бин для шифрования паролей с использованием BCrypt.
+     *
+     * @return шифратор паролей
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Настройка аутентификации с использованием DAO-провайдера и шифрования пароля.
+     *
+     * @return объект аутентификации
+     */
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -56,6 +81,14 @@ public class SecurityConfig {
         return provider;
     }
 
+    /**
+     * Создаёт администратора с логином admin и паролем admin при первом запуске приложения,
+     * если он ещё не существует в базе данных.
+     *
+     * @param userRepository репозиторий пользователей
+     * @param passwordEncoder шифратор пароля
+     * @return выполняемый компонент при старте приложения
+     */
     @Bean
     public CommandLineRunner createAdminUser(AppUserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
