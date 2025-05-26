@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ru">
 <head>
     <meta charset="UTF-8">
     <title>Аудитории – MarketingAgencyApp</title>
@@ -72,6 +72,12 @@
             </li>
             <li class="nav-item"><a class="nav-link" th:href="@{/reports}">Отчёты</a></li>
             <li class="nav-item"><a class="nav-link" th:href="@{/about}">Об авторе</a></li>
+
+            <li class="nav-item"
+                sec:authorize="hasRole('ADMIN')"
+                th:classappend="${requestURI.startsWith('/admin/users')} ? 'active'">
+                <a class="nav-link" th:href="@{/admin/users}">Пользователи</a>
+            </li>
         </ul>
         <form th:action="@{/logout}" method="post" class="form-inline">
             <button class="btn btn-outline-danger" type="submit">Logout</button>
@@ -130,7 +136,7 @@
 </main>
 
 <!-- Футер -->
-<div th:insert="fragments/footer :: appFooter"></div>
+<div th:insert="~{fragments/footer :: appFooter}"></div>
 
 <!-- Скрипты -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

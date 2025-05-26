@@ -2,13 +2,17 @@ package com.example.marketing_agency_app.service;
 
 import com.example.marketing_agency_app.model.AppUser;
 import com.example.marketing_agency_app.repository.AppUserRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * Сервис для управления пользователями приложения:
- * регистрация и базовые операции над сущностью AppUser.
+ * регистрация, получение, список и обновление роли.
  */
 @Service
 public class AppUserService {
@@ -16,12 +20,6 @@ public class AppUserService {
     private final AppUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    /**
-     * Конструктор сервиса пользователей.
-     * Инициализирует репозиторий пользователей и шифратор паролей.
-     *
-     * @param userRepository репозиторий для работы с AppUser
-     */
     public AppUserService(AppUserRepository userRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = new BCryptPasswordEncoder();
@@ -29,15 +27,7 @@ public class AppUserService {
 
     /**
      * Регистрирует нового пользователя.
-     * <ul>
-     *     <li>Проверяет, что имя пользователя ещё не занято.</li>
-     *     <li>Шифрует пароль с помощью BCrypt.</li>
-     *     <li>Сохраняет пользователя в базе.</li>
-     * </ul>
-     *
-     * @param user объект пользователя с исходными данными
-     * @return сохранённый объект пользователя с зашифрованным паролем
-     * @throws IllegalArgumentException если пользователь с таким именем уже существует
+     * @throws IllegalArgumentException если username или email уже заняты.
      */
     public AppUser registerUser(AppUser user) {
         if (userRepository.findByUsername(user.getUsername()) != null) {
@@ -48,9 +38,38 @@ public class AppUserService {
         if (userRepository.findByEmail(user.getEmail()) != null) {
             throw new IllegalArgumentException("Email already registered");
         }
-        // Шифруем пароль перед сохранением
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        // по умолчанию роль USER уже стоит в поле role
         return userRepository.save(user);
     }
 
+    /**
+     * Возвращает всех пользователей, отсортированных по username.
+     */
+    public List<AppUser> listAllUsers() {
+        return userRepository.findAll(Sort.by("username"));
+    }
+
+    /**
+     * Ищет пользователя по ID.
+     * @throws IllegalArgumentException, если не найден.
+     */
+    public AppUser getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
+    }
+
+    /**
+     * Меняет роль пользователя.
+     * Операция — в транзакции, чтобы автоматически сохранить изменения.
+     *
+     * @param userId  ID пользователя
+     * @param newRole новая роль (без префикса ROLE_)
+     */
+    @Transactional
+    public void updateUserRole(Long userId, String newRole) {
+        AppUser user = getUserById(userId);
+        user.setRole(newRole);
+        // благодаря @Transactional и dirty-checking save() не нужен
+    }
 }

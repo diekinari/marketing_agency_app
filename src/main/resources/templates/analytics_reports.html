@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ru">
 <head>
     <meta charset="UTF-8">
     <title>Отчёты – MarketingAgencyApp</title>
@@ -68,6 +68,11 @@
             <li class="nav-item"><a class="nav-link" th:href="@{/audiences}">Аудитории</a></li>
             <li class="nav-item active"><a class="nav-link" th:href="@{/reports}">Отчёты</a></li>
             <li class="nav-item"><a class="nav-link" th:href="@{/about}">Об авторе</a></li>
+
+            <li class="nav-item"
+                sec:authorize="hasRole('ADMIN')">
+                <a class="nav-link" th:href="@{/admin/users}">Пользователи</a>
+            </li>
         </ul>
         <form th:action="@{/logout}" method="post" class="form-inline my-2 my-lg-0 ml-auto">
             <button class="btn btn-outline-danger my-2 my-sm-0" type="submit">Logout</button>

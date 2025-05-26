@@ -1,13 +1,7 @@
 package com.example.marketing_agency_app.controller;
 
-import com.example.marketing_agency_app.model.AudienceSegment;
-import com.example.marketing_agency_app.model.Campaign;
-import com.example.marketing_agency_app.model.CampaignMetrics;
-import com.example.marketing_agency_app.model.Channel;
-import com.example.marketing_agency_app.service.AudienceService;
-import com.example.marketing_agency_app.service.CampaignService;
-import com.example.marketing_agency_app.service.ChannelService;
-import com.example.marketing_agency_app.service.ReportsService;
+import com.example.marketing_agency_app.model.*;
+import com.example.marketing_agency_app.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,6 +35,11 @@ public class MainController {
     private final AudienceService audienceService;
     private final ReportsService reportsService;
     private final ObjectMapper objectMapper;
+    private final AppUserService userService;
+
+
+    private static final List<String> ALL_ROLES = List.of("USER", "ADMIN");
+
 
     /**
      * Конструктор для MainController.
@@ -55,12 +54,13 @@ public class MainController {
                           CampaignService campaignService,
                           ChannelService channelService,
                           ReportsService reportsService,
-                          ObjectMapper objectMapper) {
+                          ObjectMapper objectMapper, AppUserService userService) {
         this.audienceService = audienceService;
         this.campaignService = campaignService;
         this.channelService = channelService;
         this.reportsService = reportsService;
         this.objectMapper = objectMapper;
+        this.userService = userService;
     }
 
     // ------------------ Кампании ------------------
@@ -489,5 +489,29 @@ public class MainController {
     @GetMapping("/about")
     public String about() {
         return "about";
+    }
+
+    @GetMapping("/admin/users")
+    public String listUsers(Model model) {
+        model.addAttribute("users", userService.listAllUsers());
+        return "admin/users/list";
+    }
+
+    @GetMapping("/admin/users/{id}/edit")
+    public String editUser(@PathVariable Long id, Model model, HttpServletRequest request) {
+        AppUser user = userService.getUserById(id);
+        model.addAttribute("user", user);
+        model.addAttribute("allRoles", ALL_ROLES);
+        model.addAttribute("requestURI", request.getRequestURI());
+        return "admin/users/edit";
+    }
+
+    @PostMapping("/admin/users/{id}/edit")
+    public String updateUserRole(
+            @PathVariable Long id,
+            @RequestParam("role") String role
+    ) {
+        userService.updateUserRole(id, role);
+        return "redirect:/admin/users";
     }
 }
